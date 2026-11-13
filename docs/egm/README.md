@@ -18,7 +18,7 @@ The reporting input is this coverage map plus the following linked contracts. Pa
 | [Interface](../../src/README.md) | Foundation portions of `index.html`, `src/main.ts`, `src/contract.ts`, `src/style.css`; all of `src/view.mjs`, `src/view.d.mts`, `src/vite-env.d.ts`. |
 | [Regression tests](../../tests/README.md) | `tests/view.test.mjs`, `refresh.test.mjs`, `credential.test.mjs`, `credential-runner.test.py`; engine and desktop embedded/integration tests are covered in their component contracts. |
 | [Native verification tool](../../scripts/README.md) | `scripts/verify-credential.swift`, including its packaged mode and process-only self-test. |
-| [CI](../../.github/README.md) | `.github/workflows/checks.yml`. |
+| [CI](../../.github/workflows/checks.yml) | `.github/workflows/checks.yml`. |
 | [Assets](../../assets/README.md), [brand kit](../../assets/brand/README.md) | `assets/icon.svg`; all maintained files under `assets/brand/`: README, specifications, guide, editable SVG master, prepared SVG/PNG/PDF exports and font license/provenance records. Desktop icons are owned by the desktop contract. Static assets have usage/ownership coverage; this pass does not certify every rendered export. |
 | [Documentation map](../README.md) | `docs/implementation-plan.md`, both `docs/adr/*.md`, the three `docs/agents/*.md`, `docs/verification/issue-{2,3}.md`; root `AGENTS.md`, `CONTRIBUTING.md`, `GLOSSARY.md`, `LICENSE`, `SECURITY.md`, product specification. Each retains its existing authority/purpose. |
 | This baseline and [initial report](2026-11-13_DRIFT_REPORT.md) | `docs/egm/README.md` and dated reports in this directory. Reports are observations, not additional specifications. |

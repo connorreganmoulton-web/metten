@@ -72,7 +72,7 @@ The [EGM baseline](docs/egm/README.md) maps the maintained repository outside is
 ### Interface
 
 - [Rust crates](crates/README.md) own controlled session state and recording; [native desktop integration](src-tauri/README.md) selects storage, validates requests and hosts the isolated credential proof; [the interface](src/README.md) displays native state and requests actions.
-- [Tests](tests/README.md), [native verification tooling](scripts/README.md), [CI](.github/README.md), [assets](assets/README.md), and [documentation](docs/README.md) explain supporting boundaries and evidence.
+- [Tests](tests/README.md), [native verification tooling](scripts/README.md), [CI](.github/workflows/checks.yml), [assets](assets/README.md), and [documentation](docs/README.md) explain supporting boundaries and evidence.
 - `package.json` defines `dev`, `check`, `build` and `tauri`. Development uses loopback port 5173 with `--strictPort`; checking performs TypeScript validation and JavaScript tests; building runs TypeScript and Vite. `tsconfig.json` checks `src` with strict ES2022/DOM settings and emits no TypeScript output.
 - `Cargo.toml` groups `crates/engine` and `src-tauri` with resolver 2. `rust-toolchain.toml` pins Rust 1.100.0 with rustfmt/clippy. `Cargo.lock` and `package-lock.json` record resolved dependencies; use locked Cargo checks and `npm ci` for reproducible installation.
 
