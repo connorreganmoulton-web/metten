@@ -16,6 +16,7 @@ jobs:
           toolchain: 1.100.0
           components: rustfmt, clippy
       - run: npm ci
+      - run: python3 tests/credential-runner.test.py
       - run: npm run check
       - run: npm run build
       - run: cargo fmt --all --check

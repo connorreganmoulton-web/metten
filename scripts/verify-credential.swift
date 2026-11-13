@@ -43,6 +43,8 @@ var sequence = 0
 var session = ""
 var outputPipe: [Int32] = [-1,-1]
 var collected = Data()
+let outputCapture = DispatchGroup()
+var outputReadFailed = false
 let a = "metten-dummy-" + UUID().uuidString
 let b = "metten-dummy-" + UUID().uuidString
 let password = UUID().uuidString + UUID().uuidString
@@ -107,14 +109,30 @@ func clearCheck() throws {
     try require(!appNodes().contains(where: { text($0).contains(a) || text($0).contains(b) }), "marker found in screen")
     print("PASS: input cleared and native screen scan")
 }
-func collectChildOutput() {
+func startChildOutputCapture() {
+    close(outputPipe[1]); outputPipe[1] = -1
+    let descriptor = outputPipe[0]
+    outputReadFailed = false
+    outputCapture.enter()
+    DispatchQueue.global().async {
+        defer { outputCapture.leave() }
+        var bytes = [UInt8](repeating:0,count:8192)
+        while true {
+            let n = read(descriptor,&bytes,bytes.count)
+            if n > 0 { collected.append(contentsOf:bytes.prefix(n)); continue }
+            if n < 0 && errno == EINTR { continue }
+            outputReadFailed = n < 0
+            return
+        }
+    }
+}
+func collectChildOutput() throws {
     if socket >= 0 { close(socket); socket = -1 }
     if outputPipe[1] >= 0 { close(outputPipe[1]); outputPipe[1] = -1 }
-    if outputPipe[0] >= 0 {
-        var bytes = [UInt8](repeating:0,count:8192)
-        while true { let n = read(outputPipe[0],&bytes,bytes.count); if n <= 0 { break }; collected.append(contentsOf:bytes.prefix(n)) }
-        close(outputPipe[0]); outputPipe[0] = -1
-    }
+    // Join the sole reader before inspecting output or releasing its descriptor.
+    outputCapture.wait()
+    if outputPipe[0] >= 0 { close(outputPipe[0]); outputPipe[0] = -1 }
+    try require(!outputReadFailed,"captured child output could not be read")
 }
 func waitForChildExit(timeout: TimeInterval) throws -> Bool {
     if child == 0 { return true }
@@ -125,7 +143,7 @@ func waitForChildExit(timeout: TimeInterval) throws -> Bool {
         let result = waitpid(child,&status,WNOHANG)
         if result == child {
             child = 0 // Only a confirmed wait result permits cleanup.
-            collectChildOutput()
+            try collectChildOutput()
             try require(status == 0,"owned child exited unsuccessfully")
             return true
         }
@@ -184,7 +202,7 @@ func recoverySelfTest() throws {
     }
     close(socket); socket = -1
     print("PASS: closed private channel write caught without terminating runner")
-    func spawn(_ executable: String) throws -> Int32 {
+    func spawn(_ executable: String, arguments: [String] = []) throws -> Int32 {
         var input: [Int32] = [-1,-1]
         try require(pipe(&input) == 0 && pipe(&outputPipe) == 0,"self-test pipe failed")
         var actions: posix_spawn_file_actions_t?; posix_spawn_file_actions_init(&actions)
@@ -194,9 +212,10 @@ func recoverySelfTest() throws {
         posix_spawn_file_actions_adddup2(&actions,input[0],0)
         posix_spawn_file_actions_adddup2(&actions,outputPipe[1],1)
         posix_spawn_file_actions_adddup2(&actions,outputPipe[1],2)
-        let args = [strdup(executable),nil]; defer { args.forEach { free($0) } }
+        let args = ([executable] + arguments).map { strdup($0) } + [nil]; defer { args.forEach { free($0) } }
         try ok(posix_spawn(&child,executable,&actions,&attributes,args,nil),"spawn process-only self-test")
         close(input[0])
+        startChildOutputCapture()
         return input[1]
     }
     let input = try spawn("/bin/cat")
@@ -211,6 +230,26 @@ func recoverySelfTest() throws {
     let failedInput = try spawn("/usr/bin/false"); close(failedInput)
     try require(!awaitRetainedChildExit() && child == 0,"self-test unsuccessful exit claimed success")
     print("PASS: late child exit recovered, channels closed, unsuccessful exit stays failed")
+    let noisyInput = try spawn(CommandLine.arguments[0],arguments:["--output-child"])
+    let markers = Data((a + b).utf8)
+    let sent = markers.withUnsafeBytes { Darwin.write(noisyInput,$0.baseAddress,$0.count) }
+    close(noisyInput)
+    try require(sent == markers.count,"self-test marker write failed")
+    try require(try waitForChildExit(timeout:3),"self-test noisy child exceeded exit deadline")
+    var expectedOutput = Data(repeating:120,count:1024 * 1024)
+    expectedOutput.append(markers)
+    try require(collected == expectedOutput,"self-test captured output was incomplete")
+    let directory = fm.temporaryDirectory.appendingPathComponent("metten-output-check-" + UUID().uuidString)
+    try fm.createDirectory(at:directory,withIntermediateDirectories:false)
+    defer { try? fm.removeItem(at:directory) }
+    do {
+        try scan(directory)
+        throw Failure(message:"self-test captured markers escaped scanning")
+    } catch let error as Failure {
+        try require(error.message == "marker in captured output","self-test did not detect captured markers")
+    }
+    try require(outputPipe == [-1,-1] && child == 0,"self-test noisy child not cleaned up")
+    print("PASS: noisy child exited within deadline; all output captured and markers rejected")
 }
 func launch(_ bundle: URL, _ directory: URL, _ target: SecKeychain, isolatedSetup: Bool = true) throws {
     let info = try PropertyListSerialization.propertyList(from: Data(contentsOf:bundle.appendingPathComponent("Contents/Info.plist")),format:nil) as! [String:Any]
@@ -233,6 +272,7 @@ func launch(_ bundle: URL, _ directory: URL, _ target: SecKeychain, isolatedSetu
     let env = environment.map { strdup($0.key + "=" + $0.value) } + [nil]
     defer { args.forEach { free($0) }; env.forEach { free($0) } }
     try ok(posix_spawn(&child,executable,&actions,&attributes,args,env),"spawn finished bundle")
+    startChildOutputCapture()
     close(pair[1]); socket = pair[0]
     closeRequested = false
     session = UUID().uuidString.replacingOccurrences(of:"-",with:"").lowercased(); sequence = 0
@@ -432,6 +472,12 @@ func run() throws {
     }
     try require(try metadata() == before,"isolation changed during app sequence")
     print("PASS: default/search-list metadata unchanged")
+}
+if CommandLine.arguments.dropFirst() == ["--output-child"] {
+    signal(SIGPIPE,SIG_DFL)
+    FileHandle.standardOutput.write(Data(repeating:120,count:1024 * 1024))
+    FileHandle.standardError.write(FileHandle.standardInput.readDataToEndOfFile())
+    exit(0)
 }
 if CommandLine.arguments.dropFirst() == ["--self-test"] {
     do { try recoverySelfTest(); exit(0) }

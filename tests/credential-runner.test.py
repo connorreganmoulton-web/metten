@@ -1,5 +1,7 @@
 """Process-only regression check; never launches Metten or accesses Keychain."""
 from pathlib import Path
+import os
+import signal
 import subprocess
 import tempfile
 import time
@@ -17,7 +19,7 @@ class CredentialRunnerRecovery(unittest.TestCase):
             )
             output = Path(directory) / "progress.log"
             with output.open("wb") as stream:
-                process = subprocess.Popen([str(binary), "--self-test"], stdin=subprocess.PIPE, stdout=stream, stderr=subprocess.STDOUT)
+                process = subprocess.Popen([str(binary), "--self-test"], stdin=subprocess.PIPE, stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
                 try:
                     deadline = time.monotonic() + 5
                     while b"SELF-TEST: pending child retained" not in output.read_bytes():
@@ -27,11 +29,18 @@ class CredentialRunnerRecovery(unittest.TestCase):
                     self.assertIsNone(process.poll(), "runner exited before the gate was released")
                 finally:
                     # Release only this process-only test; no native app is involved.
-                    process.communicate(input=b"\x01", timeout=5)
+                    try:
+                        process.communicate(input=b"\x01", timeout=10)
+                    finally:
+                        if process.poll() is None:
+                            # Kill only the disposable test group, including a blocked noisy child.
+                            os.killpg(process.pid, signal.SIGKILL)
+                            process.wait(timeout=5)
                 self.assertEqual(process.returncode, 0, output.read_text())
             result = output.read_text()
             self.assertIn("closed private channel write caught without terminating runner", result)
             self.assertIn("late child exit recovered, channels closed, unsuccessful exit stays failed", result)
+            self.assertIn("noisy child exited within deadline; all output captured and markers rejected", result)
             print(result, end="")
 
 
