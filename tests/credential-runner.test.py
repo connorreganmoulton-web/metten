@@ -30,6 +30,7 @@ class CredentialRunnerRecovery(unittest.TestCase):
                     process.communicate(input=b"\x01", timeout=5)
                 self.assertEqual(process.returncode, 0, output.read_text())
             result = output.read_text()
+            self.assertIn("closed private channel write caught without terminating runner", result)
             self.assertIn("late child exit recovered, channels closed, unsuccessful exit stays failed", result)
             print(result, end="")
 

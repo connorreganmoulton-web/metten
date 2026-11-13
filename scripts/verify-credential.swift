@@ -47,6 +47,9 @@ let a = "metten-dummy-" + UUID().uuidString
 let b = "metten-dummy-" + UUID().uuidString
 let password = UUID().uuidString + UUID().uuidString
 func send(_ object: [String: Any]) throws {
+    // A closed app connection must throw so owned-state cleanup still runs.
+    var noSigPipe: Int32 = 1
+    try require(setsockopt(socket,SOL_SOCKET,SO_NOSIGPIPE,&noSigPipe,socklen_t(MemoryLayout<Int32>.size)) == 0,"private channel signal protection failed")
     let data = try JSONSerialization.data(withJSONObject: object)
     var length = UInt32(data.count).bigEndian
     var packet = Data(bytes: &length, count: 4); packet.append(data)
@@ -165,6 +168,22 @@ func awaitRetainedChildExit() -> Bool {
 }
 // Process-only check: no app, Keychain, workspace or Accessibility calls.
 func recoverySelfTest() throws {
+    var pair: [Int32] = [-1,-1]
+    try require(socketpair(AF_UNIX,SOCK_STREAM,0,&pair) == 0,"self-test socketpair failed")
+    socket = pair[0]
+    try send(["probe":true])
+    let expected: [UInt8] = [0,0,0,14] + Array("{\"probe\":true}".utf8)
+    var received = [UInt8](repeating:0,count:expected.count)
+    try require(read(pair[1],&received,received.count) == expected.count && received == expected,"self-test healthy channel frame changed")
+    close(pair[1])
+    do {
+        try send(["probe":true])
+        throw Failure(message:"self-test closed-channel write unexpectedly succeeded")
+    } catch let error as Failure {
+        try require(["private channel write failed", "private channel signal protection failed"].contains(error.message),"self-test did not catch closed-channel failure")
+    }
+    close(socket); socket = -1
+    print("PASS: closed private channel write caught without terminating runner")
     func spawn(_ executable: String) throws -> Int32 {
         var input: [Int32] = [-1,-1]
         try require(pipe(&input) == 0 && pipe(&outputPipe) == 0,"self-test pipe failed")
