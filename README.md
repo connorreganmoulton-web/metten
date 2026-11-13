@@ -64,3 +64,26 @@ See [the issue #2 verification record](docs/verification/issue-2.md) for exact l
 Licensed under the [MIT License](LICENSE).
 
 Brand artwork and font provenance are documented in the [brand guide](assets/brand/README.md); those rights are not established by the software license.
+
+## Implementation documentation and drift checks
+
+The [EGM baseline](docs/egm/README.md) maps the maintained repository outside issue #4 to code-grounded component contracts and includes a repeatable drift-report request. Issue #4, including its additions in shared files, is explicitly excluded. These contracts describe the implemented non-trading foundation; the product specification and accepted ADRs remain authoritative for intended behavior.
+
+### Interface
+
+- [Rust crates](crates/README.md) own controlled session state and recording; [native desktop integration](src-tauri/README.md) selects storage, validates requests and hosts the isolated credential proof; [the interface](src/README.md) displays native state and requests actions.
+- [Tests](tests/README.md), [native verification tooling](scripts/README.md), [CI](.github/README.md), [assets](assets/README.md), and [documentation](docs/README.md) explain supporting boundaries and evidence.
+- `package.json` defines `dev`, `check`, `build` and `tauri`. Development uses loopback port 5173 with `--strictPort`; checking performs TypeScript validation and JavaScript tests; building runs TypeScript and Vite. `tsconfig.json` checks `src` with strict ES2022/DOM settings and emits no TypeScript output.
+- `Cargo.toml` groups `crates/engine` and `src-tauri` with resolver 2. `rust-toolchain.toml` pins Rust 1.100.0 with rustfmt/clippy. `Cargo.lock` and `package-lock.json` record resolved dependencies; use locked Cargo checks and `npm ci` for reproducible installation.
+
+### Invariants
+
+The screen does not own saved truth. Accepted requests are not confirmed writes; errors preserve last confirmed history. The current foundation has no trading operation. Credentials are dummy-only and unavailable on an ordinary launch. Later product features and unfinished issue #4 work are outside this baseline's implementation claims.
+
+### Side Effects
+
+Application execution can create a local workspace, SQLite history and lock files. The isolated native verifier can create and remove owned disposable Keychains and workspaces. Build/install/check commands can download dependencies and create generated files, binaries and test resources. See the owning component contract before running them. `.gitignore` excludes private planning/research, credentials, runtime databases, dependency directories and build/schema output; no such records belong in drift reports.
+
+### Verification
+
+Use the existing relevant checks above and in CONTRIBUTING.md for implementation changes. Documentation-only drift checks inspect source, inventory, references and links; they do not require launching the application or repeating unchanged packaged evidence. The [initial report](docs/egm/2026-11-13_DRIFT_REPORT.md) records this baseline's findings and limits.

@@ -1,9 +1,9 @@
 # Metten Gen 1 specification
 
 Date: 12 Nov 2026.
-Status: Product baseline and Rust/Tauri direction accepted; implementation not started.
+Status (updated 13 Nov 2026): Product baseline and Rust/Tauri direction accepted; the non-trading foundation and isolated dummy-credential integration have bounded local packaged evidence. Full Gen 1 implementation and release acceptance remain outstanding.
 
-This specification is the product source of truth for Metten Gen 1. GitHub issues track bounded implementation work against it; ADRs record architectural decisions. Repository creation and planning are authorized. Implementation and release evidence remain outstanding. Neither this document nor an issue authorizes credential access, paid services, real-money validation, or operation of another trading application.
+This specification is the product source of truth for Metten Gen 1. GitHub issues track bounded implementation work against it; ADRs record architectural decisions. Implementation proceeds through separately authorized bounded issues. The [issue #2](docs/verification/issue-2.md) and [finished issue #3](docs/verification/issue-3.md) records document the local controlled-session and dummy-credential checks; they do not establish provider integration, trading or release readiness. Neither this document nor an issue authorizes credential access, paid services, real-money validation, or operation of another trading application.
 
 ## 1. Purpose
 
@@ -20,7 +20,7 @@ The priorities are dependable purchasing, clear recovery, and maintainability. C
 - Local-only workspace: no online Metten account, telemetry, or Metten server collecting workspace data. Credentials, strategy files, settings, and trading history remain local; necessary direct calls to trusted exchanges and data providers are expected.
 - Leave the application open on an awake, connected computer for unattended operation. Closing it stops its trading operation; there is no remote service keeping it trading.
 - Supported JSON rules only; IOC purchases only; no selling/exits. Hold purchased contracts through settlement.
-- SQLite is chosen for local structured nonsecret storage, not a database server. Following owner review, Rust is selected for the engine and Tauri for the Mac application; see [ADR 0001](docs/adr/0001-rust-engine-and-tauri-boundaries.md). MIT is the selected open-source license; see [LICENSE](LICENSE). Detailed packaging remains undecided and packaged integration is not yet proven.
+- SQLite is chosen for local structured nonsecret storage, not a database server. Following owner review, Rust is selected for the engine and Tauri for the Mac application; see [ADR 0001](docs/adr/0001-rust-engine-and-tauri-boundaries.md). MIT is the selected open-source license; see [LICENSE](LICENSE). Local Mac packaging, persisted session controls and isolated dummy-credential integration have recorded evidence in issues #2 and #3 above. Distribution signing/notarization, other Macs, physical power-loss durability and full product integration remain unproven.
 
 ## 3. First use and starting a run
 
