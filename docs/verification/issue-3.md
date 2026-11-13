@@ -22,11 +22,11 @@ Commands executed:
 
 ```sh
 swiftc -suppress-warnings scripts/verify-credential.swift -o .scratch/issue3-finished-runner
-.scratch/issue3-finished-runner /Users/connormoulton/Desktop/metten/target/release/bundle/macos/Metten.app > .scratch/issue3-final-verification.log 2>&1
+.scratch/issue3-finished-runner target/release/bundle/macos/Metten.app > .scratch/issue3-final-verification.log 2>&1
 python3 tests/credential-runner.test.py
 ```
 
-The complete packaged sequence returned **exit 0**. The process-only regression check also passed on the final runner source. Source SHA-256 `0b5278ec71601d78f4109324d6000b270ff48dd09d2200da5d97c639f3a24c6d`; final sanitized log SHA-256 `197d29a8c6670c262ab8c1d21d018d062146b3320e58d5392a01c65b633bc624`.
+The complete packaged sequence returned **exit 0**. The process-only regression check also passed on the final runner source. Packaged-sequence runner source SHA-256 (before the later broken-connection fix) `0b5278ec71601d78f4109324d6000b270ff48dd09d2200da5d97c639f3a24c6d`; final sanitized log SHA-256 `197d29a8c6670c262ab8c1d21d018d062146b3320e58d5392a01c65b633bc624`.
 
 | Issue #3 requirement | Evidence and result |
 | --- | --- |
@@ -37,7 +37,7 @@ The complete packaged sequence returned **exit 0**. The process-only regression 
 
 Additional observed lifecycle evidence: on a second native read prompt, the runner requested guarded window-close. Metten remained alive during the pending prompt, then exited with status 0 after Deny. The log records both “guarded Quit retained the app during an actual pending Security prompt” and “guarded Quit finished after actual native access denial”. This is genuine pending native-call Quit evidence. Deterministic queued-command refusal remains the separate controlled test of the production mutex/quitting guard; it is not claimed as packaged queued IPC injection during that prompt. No arbitrary Security-call cancellation mechanism was added.
 
-Final scans passed, default/search-list path metadata matched both before the sequence and after cleanup, and the runner deleted its exact owned main/fixture Keychains and recorded failed-write sidecar/directory. The final directory `metten-credential-A15B4B68-CBFA-4179-9F9F-4A41A5C74AF0` and the preceding cleaned failed-attempt directory `metten-credential-660AB6F3-9DFF-47BE-AC53-65B5DC70505F` were independently confirmed absent, along with the three owner-approved historical targets. No owned app or verifier remained running.
+Final scans passed, default/search-list path metadata matched both before the sequence and after cleanup, and the runner deleted its exact owned main/fixture Keychains and recorded failed-write sidecar/directory. The final and preceding failed-attempt directories were independently confirmed absent, along with the three owner-approved historical targets. No owned app or verifier remained running.
 
 ### Final scope/review and applicable checks
 
@@ -47,83 +47,13 @@ Previously passing TypeScript/three interface tests, fourteen reported Rust test
 
 Distribution and upgrade-signing continuity, other Macs, power-loss durability, runtime compromise protection, future exports/backups and trading readiness remain outside scope. Deprecated file-Keychain APIs remain a maintenance limit. Full independent enumeration of browser memory/IPC and a native dictionary-interception trace were not performed; source, native resolver checks and the exact packaged behavior provide the bounded evidence stated here.
 
-## Owner-authorized cleanup and lean-code check (13 November UTC)
+## Historical failures and cleanup
 
-Connor explicitly approved ending the old verifier and deleting only the three previously identified disposable directories after checking they had not changed. This supersedes the earlier preserve/wait instructions **only for those targets**.
+Early verification attempts left disposable dummy state and a retained verifier. The available evidence initially established later filesystem identity, rather than creation-time ownership, so the state was preserved pending exact owner authorization. Private session records and machine-specific process/file identifiers are intentionally omitted from this public report.
 
-The exact verifier identity was rechecked: PID `8235`, parent `45982`, executable `/tmp/metten-credential-runner`, start `Thu Nov 12 23:41:36 2026`. No packaged Metten process was running. Each approved directory's recorded device/inode, owner, mode and exact file set matched; files were regular, singly linked, or known directories, with no symlinks. The newest workspace contained only `session.sqlite` (inode `170420797`) and `session.lock` (inode `170420796`), beneath recorded workspace inode `170420795`.
+The owner subsequently authorized disposal of the identified test state. Process and filesystem identities were rechecked before narrowly scoped termination and deletion; only known disposable sidecar restrictions were cleared. All approved targets were confirmed absent. This was authorized disposal of failed test state, not proof that those failed sequences passed. The later complete packaged sequence above supplies acceptance evidence.
 
-Only PID `8235` received SIGTERM; its process entry disappeared. All target metadata was rechecked before deletion. Cleanup used directory-relative operations with no-follow directory/file opens, checking identities again before removal. Only the two recorded sidecars (inodes `170399360` and `170420984`) had their immutable flags cleared, through exact file descriptors. No Keychain API, password recovery or file-content read was used. The default foundation workspace, private conversation records, saved logs, source work and unrelated processes/files were preserved.
-
-Verified absent after cleanup:
-
-- `/private/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-credential-606A4BFD-D3EC-435B-A3BE-1DF6835731CA`
-- `/private/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-credential-B3088A3D-3C69-4251-8117-ADF0B7D5C5A8`
-- `/private/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-credential-E896B059-FA89-411F-9CFC-82D0AE5C9F68`
-
-This is authorized disposal of failed dummy test state, **not** successful native Keychain deletion verification or proof that the stalled sequence passed. It intentionally discards the old verifier's dummy in-memory state. No real credentials, account access, provider calls, money or trades were used.
-
-The repository's current engine, desktop/credential flow, interface, runner, tests, dependency/build configuration and documentation roles were checked for unnecessary additions. No speculative feature/framework or demonstrably unused dependency was identified. The required isolation, secret-free errors, identity checks, retained evidence and regression tests have current purposes and were preserved. One redundant failure assignment in the runner's late-exit branch was removed: failure is already recorded before waiting. Its process-only regression check passed again after this edit. No broad redesign or generated-output purge was performed; this lean-code check is not an exhaustive security audit.
-
-The no-bloat requirement is now explicit in the project's `AGENTS.md`: current approved requirements only, reuse existing tools, remove confirmed unused/duplicate work within scope, and preserve necessary checks/evidence and unrelated work. Saved changes remain uncommitted; no GitHub changes occurred. Next credential work remains a separate focused completion of the unresolved native prompt test; cleanup itself is finished.
-
-## Runner recovery repair (13 November UTC, after the blocked prompt test)
-
-Owner authorized repairing the runner's progress reporting and recovery path. This does **not** authorize ending the retained old verifier or disposing of the three retained directories. No new packaged-app/Keychain sequence was started.
-
-A read-only `/usr/bin/sample 8235 1 10 -file /dev/stdout` check showed the old verifier's main thread in `main -> NSRunLoop.run -> CFRunLoopRun`, across all 87 samples of that thread. Together with the source's only explicit `RunLoop.current.run()` call, this establishes its current preservation wait. It does not establish the initial failing test step. Metten was absent from the targeted process listing.
-
-The repaired `scripts/verify-credential.swift`:
-
-- Disables stdout buffering before progress is printed, so fixed, sanitized messages reach redirected output while the process is still pending. Adds fixed stage messages around the prompt request and guarded close.
-- Uses one shared owned-child wait path for ordinary Quit and late-exit recovery. It clears the child identity only after `waitpid` confirms that exact child exited; only then does it close/capture the existing channels and permit the existing owned-state cleanup. A nonzero exit remains a failure.
-- Replaces the endless preservation RunLoop with repeated read-only exit checks. Pending/unknown exit state still retains ownership and blocks cleanup; it sends no termination signal or arbitrary Security cancellation.
-- Records that a close action was attempted before sending it, so an ambiguous Accessibility reply does not cause a second close request. The record resets only for a newly spawned owned app.
-- Keeps the failed verification result after a late app exit; cleanup does not convert failure into success.
-
-**Focused verification performed:** `python3 tests/credential-runner.test.py` compiled the complete Swift runner in a newly owned temporary directory and ran its explicit `--self-test` mode. This mode bypasses app, Keychain, workspace and Accessibility operations. A controlled `/bin/cat` child stayed alive past the initial wait. The Python check observed the runner's progress in a redirected file before releasing its gate. After release, the actual recovery path detected exit and closed its channels; repeated waiting with no child was safe. A separate `/usr/bin/false` child verified that unsuccessful exit still reports failure. The final check passed in approximately 2.4 seconds, including compilation. Its temporary files were removed by the test's own temporary-directory context.
-
-A temporary-copy negative control removed only the stdout-buffering change. Before gate release the process remained alive and its output file stayed empty; after release the same process-only check finished and its messages appeared. This independently reproduces the previous missing-progress symptom without changing the saved source or accessing Keychain. This control passed. `git diff --check` and whitespace checks on the newly added runner/test/document passed.
-
-These are controlled process-recovery and output checks. They do **not** prove the complete native access-denial sequence, behavior of a pending Security call, or real Keychain cleanup. The app bundle and Rust/interface source were unchanged by this repair, so their existing applicable checks were reused without rebuilding. No signing, publication, account access, provider calls or trading occurred.
-
-**Retained limitation:** a source repair cannot update the already-running old executable. PID `8235` and all three retained directories remain untouched; the old runner still has no recovery channel. The exact original prompt-test failure and full issue acceptance remain unresolved. The existing separate recovery/disposal decision below still applies.
-
-## Completion-session checkpoint (13 November UTC)
-
-**Acceptance remains incomplete; do not rerun the prompt sequence or terminate the retained verifier as routine cleanup.** Metten itself is stopped. The failed verification runner PID `8235` remains alive, deliberately retaining its in-memory dummy password and owned references. No real credential, provider, account, money or trade was used. No publication or GitHub write occurred. Existing source changes, ignored records and foundation workspace history were preserved.
-
-### Changes and focused proof
-
-- The native request decoder now rejects wrong field types, unknown fields, unsupported operations and any value accompanying Check/Remove. All such errors are the same fixed, secret-free message. Save/Replace still validate the bounded dummy value before a native write.
-- The existing mutex-then-quitting check now lives in `Credentials::begin_operation`, called by every accepted credential operation. A controlled concurrency test holds current work, starts four queued workers, marks quitting and verifies each refuses through this actual guard. A simulated quit waiter cannot acquire the operation mutex until current work releases it. This is deterministic controlled locking evidence, **not** a packaged pending-Security-call/engine-exit test. The actual quit handler still marks quitting before waiting on the same mutex and then invokes the existing engine stop/save/exit path; that linkage was source-inspected.
-- A filesystem-only test (empty synthetic files, no Keychain APIs) verifies original identity acceptance and refusal of unexpected replacement, hard links, symlinks and a nonprivate parent. The successful-native-write identity refresh remains unchanged. It cannot protect against a compromised same-user process or OS.
-- Installed public `SecItem.h` documents the explicit add target and restricted search-list behavior, and warns that no-authentication-UI does not suppress legacy file-Keychain prompts. Installed `SecKeychain.h`, Rust bindings, Tauri authority source, generated app permissions and the actual resolver test were inspected. Submitted file-based/nonsynchronizing options and fixed item identity remain unchanged. This is source/resolver evidence, not an API-interception trace.
-- `npm run check` passed (three interface tests); `cargo test --workspace --locked` passed (seven desktop tests, one engine unit test, six integration/child entries); Clippy with warnings denied, formatting and `git diff --check` passed. Engine source and SQLite schema remain unchanged.
-
-### Rebuilt bundle and failed prompt experiment
-
-The production build passed; the new bundle was signed once ad-hoc and strict signature verification passed. Identifier `com.metten.foundation`, arm64, no team identity or entitlements. Executable SHA-256 `d0bb70982f753311c7be29a3b0f0f31062639398dc5f95a58d9d10356fda15ec`; bundle-tree SHA-256 `1dbb5e4d1800af790295abe1e150a886a4cd6a7a42fc3a21e3579753f3d62f93`; CDHash `85d4c5ec2b64899eaf98f9f0531fb8b3d807f715` below belongs only to the earlier bundle.
-
-The Swift runner compiled and its existing Accessibility grant was confirmed before starting. Only its explicitly spawned app and disposable workspace were used. The sequence was extended with a runner-created dummy item after ordinary removal and fixture checks: its normal creating-app access protection should make Metten request access, without modifying ACLs, broadening permissions, changing global interaction settings or touching login items.
-
-**Observed failure:** the packaged run stalled around this real prompt. Read-only native Accessibility inspection of the owned child PID `8436` showed “Checking local credential action” and exactly one SecurityAgent window matching both Metten and dummy, with exactly one Deny button. A narrowly scoped native helper rechecked that unique match and pressed Deny. That action returned success. The owned Metten process subsequently exited; the verifier remained parked. No force exit, debugger, password recovery, permission grant or inspection connector was used. The exact point where the runner stalled is unknown; a blocking Accessibility action is a hypothesis, not established diagnosis.
-
-The verifier redirects stdout to `.scratch/issue3-completion-verification.log`, which remained zero bytes because output was buffered while the process remained alive. Therefore intermediate sequence assertions, the application's resulting access-refusal category, final marker scans, final isolation metadata and cleanup are **not captured proof for the rebuilt bundle**. Do not call this an observed native cancellation status or a successful full packaged sequence. The earlier successful sequence below remains historical evidence for its exact earlier bundle; it does not complete this rebuilt bundle's acceptance. The new prompt sequence is not validated for unattended reuse.
-
-### Cleanup provenance and retained state
-
-The original local execution record was examined at `~/.codex/sessions/2026/11/12/rollout-2026-11-12T23-00-49-01a1d347-9fd8-7611-8cfa-1abc02c5b548.jsonl`. Its operation outputs show the early failures, but the first path-specific record found is a later filesystem inventory at `2026-11-13T05:15:19.956Z`, ordinal 440, command `exec-4ca4ac3b-9d52-484d-b830-f2261bc8a75d`. That later inventory alone is not creation-time ownership proof. No passwords or secret file contents were sought.
-
-Current metadata still matches that later inventory's old file inodes. On device `16777231`, owner uid `501`:
-
-- `.../T/metten-credential-606A4BFD-D3EC-435B-A3BE-1DF6835731CA`: directory inode `170395655`, mode 0700. Keychain inode `170395710`; `.fl7C5EA002` inode `170395656`; workspace SQLite/lock inodes `170395675`, `170395676`, `170395678`, `170395679`. No file was opened or unlocked.
-- `.../T/metten-credential-B3088A3D-3C69-4251-8117-ADF0B7D5C5A8`: directory inode `170399210`, mode 0700. Sole sidecar `dummy.keychain-db.sb-1fec5535-vt0rlw`, inode `170399360`, immutable flag `2`. No flag was cleared.
-- Newly retained candidate `.../T/metten-credential-E896B059-FA89-411F-9CFC-82D0AE5C9F68`: directory inode `170420767`, mode 0700, birth time `1794548496.460233`, coinciding with this run. It contains a workspace, main/fixture Keychains and immutable failed-write sidecar `dummy.keychain-db.sb-1fec5535-s92PMb` (inode `170420984`). The main Keychain's last inspected inode is `170421547`, fixture inode `170420881`. The runner retains the original in-memory ownership records, but its current code provides no recovery channel from the parked RunLoop. The directory's name/time alone does not independently prove ownership; it has not been reopened or deleted.
-
-All three full paths share prefix `/private/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/`. All remain preserved. No directory cleanup, broad deletion, flag clearance or normal workspace alteration was attempted.
-
-**Smallest next owner decision:** authorize failure recovery to end only verifier PID `8235` (after rechecking its identity and that Metten remains stopped), and explicitly designate the above three exact directories for disposal despite the missing creation-time records. Such authority must name the targets; recheck metadata before acting, stop on changes, and limit flag removal to the two identified disposable sidecars. This would intentionally discard dummy-only retained state; it must not be reported as successful verification. Without that decision, preserve the runner and all targets. A later focused verification repair must resolve the native interaction stall and produce one complete sequence on the unchanged finished bundle. Genuine pending-work Quit and the app's response to actual denial remain missing proof.
+Runner repairs made progress visible while waiting, retained ownership until actual child exit, and preserved a failed result after late cleanup. Process-only checks verified delayed exit recovery and unsuccessful-exit reporting. The later broken-connection fix applies checked `SO_NOSIGPIPE` before private-channel writes so a closed connection reaches existing failure/recovery handling. Its regression checks normal message framing and handled closed-peer failure; the test reproduced signal-13 termination before the fix and passes afterward. App and Keychain operations were not repeated for that runner-only change.
 
 ## Bounded implementation
 
@@ -137,7 +67,7 @@ All three full paths share prefix `/private/var/folders/8b/3ct60xws49sc9pdgdx551
 - Raw credential request decoding returns fixed errors instead of framework decoding errors that might quote input. No Debug representation of secrets is added. Actual missing/locked/unavailable errors and mapped denied/canceled/authentication statuses remain distinct.
 - The app-command manifest includes all three commands: snapshot, control and credential. Only the local main window receives their permissions. No filesystem, shell, SQL, network or secret-reading permission is granted.
 
-## Native runner and finished package
+## Earlier package checkpoint (historical)
 
 `scripts/verify-credential.swift` is the dummy-only runner. It generates the password and A/B markers in memory; creates a unique private directory and Keychain with `SecKeychainCreate`; records owned references immediately; explicitly inherits its socket using `posix_spawn` descriptor actions and close-on-exec defaults; and resolves the packaged executable from Info.plist. No LaunchServices, clipboard, secret arguments, secret environment variables, password files, security CLI or plaintext dump is used. An existing Accessibility grant was available; none was granted or broadened. Full Xcode/XCUITest was not assumed or installed.
 
@@ -157,11 +87,11 @@ Final bundle: `target/release/bundle/macos/Metten.app`, arm64. It was rebuilt, t
 | Check | Result on final behavior |
 | --- | --- |
 | `npm run check` | TypeScript and three interface tests passed, including immediate clearing and suppression of unexpected error contents. Node reported its existing experimental type-stripping notice. |
-| `/Users/connormoulton/.cargo/bin/cargo test --workspace --locked` | Eleven reported tests passed: four desktop/native/permission tests, one engine unit test and six integration/child entries. |
-| `/Users/connormoulton/.cargo/bin/cargo clippy --workspace --all-targets --locked -- -D warnings` | Passed. |
-| `/Users/connormoulton/.cargo/bin/cargo fmt --all --check` | Passed. |
+| `cargo test --workspace --locked` | Eleven reported tests passed: four desktop/native/permission tests, one engine unit test and six integration/child entries. |
+| `cargo clippy --workspace --all-targets --locked -- -D warnings` | Passed. |
+| `cargo fmt --all --check` | Passed. |
 | `git diff --check` | Passed. |
-| `PATH=/Users/connormoulton/.cargo/bin:$PATH npm run tauri build -- --bundles app` | Passed; includes production TypeScript/Vite build. |
+| `npm run tauri build -- --bundles app` | Passed; includes production TypeScript/Vite build. |
 | `swiftc -suppress-warnings scripts/verify-credential.swift -o /tmp/metten-credential-runner` | Passed using installed native APIs. Suppresses expected legacy-API warnings; does not make them supported indefinitely. |
 | `/tmp/metten-credential-runner <absolute finished bundle path>` | Final sequence returned exit code 0. See steps below. |
 | Native error-mapping checks | Controlled OSStatus inputs exercised duplicate, missing, cancellation, authentication, denial and unknown/unavailable categories. These are mapping tests, not observed access prompts. |
@@ -184,7 +114,7 @@ Final packaged sequence:
 
 Issue #2's unchanged engine/storage evidence and PR #20's completed checks remain applicable. Old pending-CI wording in issue #2's local record is not current PR status. This task did not run new remote CI or repeat unchanged power-loss/storage work.
 
-## Incomplete evidence and incident record
+## Earlier incomplete evidence and incidents (historical; superseded above)
 
 - Two early attempts left disposable state: one directory containing an encrypted dummy item plus workspace files, and one directory containing an immutable failed-write sidecar after Keychain deletion. The earlier runner lost its in-memory ownership/password state on exit. These remnants were identified by filesystem metadata only and were not reopened, unlocked, inspected for secret data or deleted without the original identity record. Later/final runs cleaned up successfully. Full cleanup across all attempts is therefore incomplete.
 - The native inspection connector unexpectedly reopened the default foundation workspace twice when observing after close. It was closed immediately; ordinary open/close history records were appended there. No credential input, Keychain setup, provider access or trading occurred in those instances. The final runner uses only its explicitly spawned process and disposable workspace.
