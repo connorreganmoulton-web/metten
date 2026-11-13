@@ -2,9 +2,9 @@
 
 A local Mac application foundation with an independent Rust engine and a Tauri interface. The planned product runs supported Kalshi strategies.
 
-**Status: issue #2 local foundation. The app controls a non-trading test session and saves its history. No trading or public release is available.**
+**Status: early development. The app controls a non-trading test session and saves its history. No trading or public release is available.**
 
-Metten separates strategy rules from connections, purchasing, accounting, and recovery. Authors supply validated JSON rules; the shared engine handles their execution. Gen 1 targets Bitcoin 15-minute markets, one live run, and independent paper runs. Paper is the default; real-money validation requires separate explicit authorization.
+Metten separates strategy rules from connections, purchasing, accounting, and recovery. The planned design uses validated JSON rules, with the shared engine responsible for execution. Gen 1 targets Bitcoin 15-minute markets, one live run, and independent paper runs. Paper is the default; real-money validation requires separate explicit authorization.
 
 - [Product specification](METTEN_DESIGN_DRAFT_2026-11-12.md)
 - [Architecture decision](docs/adr/0001-rust-engine-and-tauri-boundaries.md)
@@ -17,6 +17,17 @@ The application is intended to keep credentials in local-only Mac Keychain and n
 
 Implementation tickets are tracked in [GitHub Issues](https://github.com/connorreganmoulton-web/metten/issues); see the [implementation plan](docs/implementation-plan.md) for dependencies. Each ticket must deliver a verifiable behavior, state its dependencies, and preserve the product specification. Follow the accepted architecture decision; do not add strategy-specific purchase or recovery paths.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and contribution boundaries, and [SECURITY.md](SECURITY.md) to report a vulnerability privately.
+
+## Repository map
+
+- [`src/`](src/) — application interface.
+- [`src-tauri/`](src-tauri/) — native Mac integration.
+- [`crates/engine/`](crates/engine/) — shared engine and its tests.
+- [`tests/`](tests/) — interface and integration checks.
+- [`docs/`](docs/) — architecture decisions, implementation plan, and verification records.
+- [`scripts/`](scripts/) — development and verification tools.
+
 ## Run the non-trading foundation
 
 Install Node.js 24 or later, the pinned Rust toolchain from `rust-toolchain.toml`, and Apple's Xcode Command Line Tools. Then:
@@ -26,7 +37,7 @@ npm ci
 npm run tauri dev
 ```
 
-Start the controlled session, advance its manual test clock, and pause. Now and History display committed SQLite records. Reopening retains history and starts stopped. This is a test session, not paper trading; it has no strategies, feeds, credentials, orders or financial accounting.
+Start the controlled session, advance its manual test clock, and pause. Now and History display committed SQLite records. Reopening retains history and starts stopped. This is a test session, not paper trading; it has no market feeds, orders or financial accounting. Credential storage has been tested with dummy credentials only; provider connections are not available.
 
 Build a local Mac application with `npm run tauri build -- --bundles app`; open `target/release/bundle/macos/Metten.app`. This local bundle is not a signed/notarized public release.
 
