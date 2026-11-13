@@ -17,3 +17,6 @@ docs/research/
 target/
 node_modules/
 dist/
+
+# Generated Tauri schemas
+src-tauri/gen/

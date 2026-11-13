@@ -1,0 +1,6 @@
+{
+  "identifier": "main",
+  "description": "Local main window; no filesystem, SQL, shell, or network plugin permissions.",
+  "windows": ["main"],
+  "permissions": []
+}
