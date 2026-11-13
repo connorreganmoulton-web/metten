@@ -1,28 +1,28 @@
-# Metten
-
+<h1>
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/brand/exports/svg/metten-a-lockup-reversed.svg">
   <img src="assets/brand/exports/svg/metten-a-lockup-primary.svg" alt="Metten: three offset rounded pieces with a cobalt center, beside the lowercase metten wordmark" width="256">
 </picture>
+</h1>
 
-A local Mac application foundation with an independent Rust engine and a Tauri interface. The planned product runs supported Kalshi strategies.
+Metten is an open-source Mac app in development for running supported Kalshi strategies locally. It is designed around a shared engine that keeps strategy rules separate from purchasing, accounting, and recovery.
 
-**Status: early development. The app controls a non-trading test session and saves its history. No trading or public release is available.**
+> [!NOTE]
+> **Early development:** Metten currently runs a non-trading test session and saves its history. Paper trading, live trading, and a public release are not yet available.
 
-Metten separates strategy rules from connections, purchasing, accounting, and recovery. The planned design uses validated JSON rules, with the shared engine responsible for execution. Gen 1 targets Bitcoin 15-minute markets, one live run, and independent paper runs. Paper is the default; real-money validation requires separate explicit authorization.
+[Get started](#run-the-non-trading-foundation) · [Contributing](CONTRIBUTING.md) · [Product specification](METTEN_DESIGN_DRAFT_2026-11-12.md) · [Issues](https://github.com/moultonlavah/metten/issues)
 
-- [Product specification](METTEN_DESIGN_DRAFT_2026-11-12.md)
-- [Architecture decision](docs/adr/0001-rust-engine-and-tauri-boundaries.md)
-- [Project vocabulary](GLOSSARY.md)
-- [Implementation tracking](https://github.com/connorreganmoulton-web/metten/issues)
+## What we're building
 
-The application is intended to keep credentials in local-only Mac Keychain and nonsecret structured data in SQLite, with no Metten account or telemetry. These are requirements, not implemented guarantees. No profitability claim is made.
+The first version targets Bitcoin 15-minute markets, with independent paper runs and one live run. Strategies will use validated JSON rules, while the engine handles execution and safeguards. Paper is the default; real-money validation requires separate explicit authorization. Paper results do not prove live execution or future performance.
 
-## Development
+Metten is intended to keep credentials in local-only Mac Keychain and nonsecret structured data in SQLite, without a Metten account or telemetry. These are product requirements, not fully verified guarantees. See the [product specification](METTEN_DESIGN_DRAFT_2026-11-12.md) and [architecture decision](docs/adr/0001-rust-engine-and-tauri-boundaries.md) for details.
 
-Implementation tickets are tracked in [GitHub Issues](https://github.com/connorreganmoulton-web/metten/issues); see the [implementation plan](docs/implementation-plan.md) for dependencies. Each ticket must deliver a verifiable behavior, state its dependencies, and preserve the product specification. Follow the accepted architecture decision; do not add strategy-specific purchase or recovery paths.
+## Explore and contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and contribution boundaries, and [SECURITY.md](SECURITY.md) to report a vulnerability privately.
+Browse the [implementation plan](docs/implementation-plan.md) and [open issues](https://github.com/moultonlavah/metten/issues) to see what's planned and what is ready. The [project vocabulary](GLOSSARY.md) explains the terms used throughout the documentation.
+
+See the [contribution guide](CONTRIBUTING.md) for setup, checks, and contribution boundaries. To report a vulnerability privately, use the [security policy](SECURITY.md).
 
 ## Repository map
 
