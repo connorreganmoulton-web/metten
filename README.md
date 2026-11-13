@@ -1,5 +1,10 @@
 # Metten
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/brand/exports/svg/metten-a-lockup-reversed.svg">
+  <img src="assets/brand/exports/svg/metten-a-lockup-primary.svg" alt="Metten: three offset rounded pieces with a cobalt center, beside the lowercase metten wordmark" width="256">
+</picture>
+
 A local Mac application foundation with an independent Rust engine and a Tauri interface. The planned product runs supported Kalshi strategies.
 
 **Status: early development. The app controls a non-trading test session and saves its history. No trading or public release is available.**
@@ -27,6 +32,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks, and contribution bound
 - [`tests/`](tests/) — interface and integration checks.
 - [`docs/`](docs/) — architecture decisions, implementation plan, and verification records.
 - [`scripts/`](scripts/) — development and verification tools.
+- [`assets/brand/`](assets/brand/README.md) — logo artwork and usage guidance.
 
 ## Run the non-trading foundation
 
@@ -57,4 +63,4 @@ See [the issue #2 verification record](docs/verification/issue-2.md) for exact l
 
 Licensed under the [MIT License](LICENSE).
 
-The approved Metten brand asset pack has not been imported. Check its provenance and any third-party asset or font licenses when adding it; those rights are not established by this repository license.
+Brand artwork and font provenance are documented in the [brand guide](assets/brand/README.md); those rights are not established by the software license.

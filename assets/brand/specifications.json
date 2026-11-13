@@ -1,0 +1,85 @@
+{
+  "name": "Metten",
+  "version": "1.0-digital",
+  "status": "Design delivery complete within delegated digital scope; no product integration or publication authority",
+  "owner_selected": [
+    "Metten name",
+    "A main / B small-icon direction",
+    "Clash Grotesk Bold with 0.03em added after first t",
+    "Cobalt retained for now",
+    "Inter body/interface type",
+    "240px visible header lockup and approved responsive placement",
+    "Equal-gap center placement across treatments"
+  ],
+  "designer_adopted_under_autonomy": [
+    "Half-center-piece clear space",
+    "Icon routing: Micro 16\u201323, B 24\u201347, A 48+ CSS-pixel square canvases",
+    "B Micro refinement for digital delivery",
+    "Conservative minimum full lockup 240px visible / wordmark-only 160px visible",
+    "No tagline in this digital release",
+    "Digital sRGB palette only; no invented print conversions"
+  ],
+  "colors": {
+    "cobalt": "#304FFF",
+    "ink": "#15171C",
+    "chalk": "#F1EFE8"
+  },
+  "type": {
+    "logo": "Actual outlined Clash Grotesk Bold",
+    "body": "Inter",
+    "weights": [
+      400,
+      500,
+      600
+    ],
+    "body_px": 16,
+    "interface_px": 14,
+    "secondary_px": 12,
+    "numbers": "tabular lining figures"
+  },
+  "clear_space": {
+    "unit": "half center-piece height",
+    "master_units": 30.30435,
+    "symbol_width_fraction": 0.14385966211504014,
+    "micro_tile_exception": "Internal packing is about 1px at 16px. Apply surrounding clearance outside the tile."
+  },
+  "sizes": {
+    "full_lockup_visible_min_px": 240,
+    "wordmark_visible_min_px": 160,
+    "symbol_roles_css_px": {
+      "micro": [
+        16,
+        23
+      ],
+      "small": [
+        24,
+        47
+      ],
+      "main": [
+        48,
+        null
+      ]
+    },
+    "below_16": "No supplied supported symbol; use text or a larger placement"
+  },
+  "header": {
+    "visible_width_css_px": 240,
+    "desktop_padding_px": [
+      20,
+      28
+    ],
+    "phone_top_side_padding_px": [
+      20,
+      16
+    ],
+    "nav_below_at_width_px": 640,
+    "one_logo": true
+  },
+  "limits": [
+    "Physical iPhone/Safari and other editors not certified",
+    "Print specifications excluded",
+    "T3 custom-icon support unverified",
+    "Complete Scratch archive independent backup unverified",
+    "No product integration, GitHub mutation, deployment, runtime or order action"
+  ]
+}
