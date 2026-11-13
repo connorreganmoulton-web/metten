@@ -1,8 +1,8 @@
 # Metten
 
-A planned local Mac application for running supported Kalshi strategies, with a Rust trading engine and a Tauri interface.
+A local Mac application foundation with an independent Rust engine and a Tauri interface. The planned product runs supported Kalshi strategies.
 
-**Status: design and planning. There is no runnable application or release yet.**
+**Status: issue #2 local foundation. The app controls a non-trading test session and saves its history. No trading or public release is available.**
 
 Metten separates strategy rules from connections, purchasing, accounting, and recovery. Authors supply validated JSON rules; the shared engine handles their execution. Gen 1 targets Bitcoin 15-minute markets, one live run, and independent paper runs. Paper is the default; real-money validation requires separate explicit authorization.
 
@@ -16,6 +16,31 @@ The application is intended to keep credentials in local-only Mac Keychain and n
 ## Development
 
 Implementation tickets are tracked in [GitHub Issues](https://github.com/connorreganmoulton-web/metten/issues); see the [implementation plan](docs/implementation-plan.md) for dependencies. Each ticket must deliver a verifiable behavior, state its dependencies, and preserve the product specification. Follow the accepted architecture decision; do not add strategy-specific purchase or recovery paths.
+
+## Run the non-trading foundation
+
+Install Node.js 24 or later, the pinned Rust toolchain from `rust-toolchain.toml`, and Apple's Xcode Command Line Tools. Then:
+
+```sh
+npm ci
+npm run tauri dev
+```
+
+Start the controlled session, advance its manual test clock, and pause. Now and History display committed SQLite records. Reopening retains history and starts stopped. This is a test session, not paper trading; it has no strategies, feeds, credentials, orders or financial accounting.
+
+Build a local Mac application with `npm run tauri build -- --bundles app`; open `target/release/bundle/macos/Metten.app`. This local bundle is not a signed/notarized public release.
+
+The default workspace is the operating system's application-data directory for `com.metten.foundation`. For isolated checks, launch the bundle's `Contents/MacOS/metten` executable with `METTEN_TEST_WORKSPACE` set to a fresh temporary directory. Never point checks at another application's workspace. No workspace path is accepted from the screen.
+
+```sh
+cargo test --workspace --locked
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+npm run check
+npm run build
+```
+
+See [the issue #2 verification record](docs/verification/issue-2.md) for exact local evidence and limitations.
 
 ## License
 

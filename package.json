@@ -1,0 +1,14 @@
+{
+  "name": "metten",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "check": "tsc --noEmit && node --test tests/*.test.mjs",
+    "build": "tsc --noEmit && vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": { "@tauri-apps/api": "2.12.4" },
+  "devDependencies": { "@tauri-apps/cli": "2.12.4", "typescript": "7.0.2", "vite": "8.3.8" }
+}
