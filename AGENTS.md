@@ -10,6 +10,8 @@ No issue or label authorizes real credentials, account access, paid services, de
 
 Speak to the owner in plain English. Own routine engineering details; ask only about consequential scope, cost or risk decisions. Keep this repository free of bloat: implement only approved requirements, reuse existing code and tools, and remove confirmed unused or duplicate code within the approved task. Add extra layers, dependencies or features only for a concrete current need. Preserve necessary safety checks, meaningful tests, evidence and unrelated work.
 
+Preserve the root README as the GitHub project page. Do not create `.github/README.md`: GitHub displays it in preference to the root README. Document GitHub workflows in an existing guide or a differently named file.
+
 ## Agent skills
 
 ### Issue tracker
