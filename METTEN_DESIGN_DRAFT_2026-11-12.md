@@ -20,7 +20,7 @@ The priorities are dependable purchasing, clear recovery, and maintainability. C
 - Local-only workspace: no online Metten account, telemetry, or Metten server collecting workspace data. Credentials, strategy files, settings, and trading history remain local; necessary direct calls to trusted exchanges and data providers are expected.
 - Leave the application open on an awake, connected computer for unattended operation. Closing it stops its trading operation; there is no remote service keeping it trading.
 - Supported JSON rules only; IOC purchases only; no selling/exits. Hold purchased contracts through settlement.
-- SQLite is chosen for local structured nonsecret storage, not a database server. Following owner review, Rust is selected for the engine and Tauri for the Mac application; see [ADR 0001](docs/adr/0001-rust-engine-and-tauri-boundaries.md). Detailed packaging and the specific permissive open-source license remain undecided; packaged integration is not yet proven.
+- SQLite is chosen for local structured nonsecret storage, not a database server. Following owner review, Rust is selected for the engine and Tauri for the Mac application; see [ADR 0001](docs/adr/0001-rust-engine-and-tauri-boundaries.md). MIT is the selected open-source license; see [LICENSE](LICENSE). Detailed packaging remains undecided and packaged integration is not yet proven.
 
 ## 3. First use and starting a run
 
@@ -189,7 +189,7 @@ Engineering owns technical discovery and proof within the agreed behavior:
 - SQLite schema/transactions, durable intent/outcome recording, recovery, loss of local files, credential removal, history/export/backup/retention, auxiliary-file and disk monitoring, and proof that unsafe recording blocks new purchases.
 - Independent security verification for malformed uploads, leakage, credentials, recovery records, dependencies, distribution, updates, and runtime compromise boundaries. No such verification has been performed.
 - Measured paper-run capacity while protecting live responsiveness; no performance limit has been selected.
-- Rust engine and Tauri desktop integration proof, implementation/build plan, secure packaging/distribution, security updates, and open-source license. The engine/framework direction is selected in ADR 0001; feasibility and implementation evidence remain outstanding.
+- Rust engine and Tauri desktop integration proof, implementation/build plan, secure packaging/distribution and security updates. MIT is selected; the engine/framework direction is selected in ADR 0001; feasibility and implementation evidence remain outstanding.
 - Concrete release evidence and tests for the complete milestone and required recovery, order, accounting, security, installation, and documentation checks.
 
 The product baseline, SQLite/storage policy, and Rust/Tauri direction are settled. Engineering owns routine implementation details and evidence. Raise only material product, cost, or money tradeoffs with the owner. Deferred D/F definitions do not block the core application. Selecting an architecture is not proof of implementation readiness.

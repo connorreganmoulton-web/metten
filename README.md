@@ -15,8 +15,10 @@ The application is intended to keep credentials in local-only Mac Keychain and n
 
 ## Development
 
-Implementation tickets will be reviewed and published to GitHub Issues. Each ticket must deliver a verifiable behavior, state its dependencies, and preserve the product specification. Follow the accepted architecture decision; do not add strategy-specific purchase or recovery paths.
+Implementation tickets are tracked in [GitHub Issues](https://github.com/connorreganmoulton-web/metten/issues); see the [implementation plan](docs/implementation-plan.md) for dependencies. Each ticket must deliver a verifiable behavior, state its dependencies, and preserve the product specification. Follow the accepted architecture decision; do not add strategy-specific purchase or recovery paths.
 
 ## License
 
-A permissive license allowing commercial closed-source derivatives is intended. The specific license has not yet been selected; no open-source license grant is made by this repository's public visibility alone.
+Licensed under the [MIT License](LICENSE).
+
+The approved Metten brand asset pack has not been imported. Check its provenance and any third-party asset or font licenses when adding it; those rights are not established by this repository license.
