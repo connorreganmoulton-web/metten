@@ -118,3 +118,29 @@ No drift detected. Its finished disposition supersedes earlier incomplete checkp
 - **docs/adr/0001-rust-engine-and-tauri-boundaries.md — resolved:** replaced the outdated future-proof wording and added a dated evidence note linking issues #2/#3. The accepted architecture decision and its requirements remain unchanged.
 
 This follow-up checks only those status/evidence corrections and documentation links; the prior component coverage remains applicable. The original findings above are retained as history. No tests, builds, app/credential operations or issue #4 work were performed. Connor authorized committing the documentation baseline and these corrections locally; no push or PR is included.
+
+## Follow-up drift check — 13 November 2026
+
+Scope: the existing coverage map outside issue #4. The committed non-documentation files remain unchanged from foundation commit `b1eb58c`; the earlier component review is reused for those files. The root README, coverage map, project instructions and the two previously corrected status summaries were checked for changes since that baseline. The removed `.github/README.md` was replaced in current links by the workflow file; its entry above remains a historical observation.
+
+Coverage limit: ten shared files have uncommitted changes associated with ongoing issue #4 work. This pass did not inspect those changes or independently establish that every in-scope behavior in those files is unchanged. The result is therefore partial, not a clean assessment of the entire current working copy. Issue #4 artifacts and their changes remain excluded. No tests, builds, app launches, credentials or trading operations were performed.
+
+## README.md
+
+No drift detected in the changed documentation links reviewed in this pass.
+
+## AGENTS.md
+
+No drift detected in the project-page safeguard reviewed in this pass.
+
+## docs/egm/README.md
+
+No drift detected in the changed CI reference reviewed in this pass.
+
+## METTEN_DESIGN_DRAFT_2026-11-12.md
+
+No drift detected in the previously corrected status summaries reviewed in this pass.
+
+## docs/adr/0001-rust-engine-and-tauri-boundaries.md
+
+No drift detected in the previously corrected evidence update reviewed in this pass.
