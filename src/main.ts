@@ -59,3 +59,22 @@ pause.addEventListener('click', () => void control('pause'));
 advance.addEventListener('click', () => void control('advance'));
 async function poll() { await refresh(); window.setTimeout(() => void poll(), 200); }
 void poll();
+
+for (const operation of ['save', 'replace', 'remove', 'check']) {
+  element(`credential-${operation}`).addEventListener('click', () => {
+    const input = element<HTMLInputElement>('credential-value');
+    const value = input.value;
+    input.value = '';
+    const buttons = ['save', 'replace', 'remove', 'check'].map(o => element<HTMLButtonElement>(`credential-${o}`));
+    buttons.forEach(b => { b.disabled = true; });
+    element('credential-status').textContent = 'Checking local credential action…';
+    void invoke<string>('credential', { operation, ...(['save', 'replace'].includes(operation) ? { value } : {}) })
+      .then(status => { element('credential-status').textContent = status; })
+      .catch(failure => {
+        // Only native finite messages are shown; unexpected framework errors stay private.
+        element('credential-status').textContent = typeof failure === 'string' && /^(Unavailable|Locked|Verification unavailable|Already saved|Missing|Canceled|Authentication failed|Denied|Invalid input|Invalid request|Invalid credential|Quitting|Credential access unavailable|Mismatch) —?/.test(failure)
+          ? failure : 'Credential action failed — reopen the isolated verification setup and retry.';
+      })
+      .finally(() => { buttons.forEach(b => { b.disabled = false; }); });
+  });
+}
