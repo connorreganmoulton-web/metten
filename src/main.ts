@@ -13,6 +13,7 @@ const pause = element<HTMLButtonElement>('pause');
 const advance = element<HTMLButtonElement>('advance');
 const error = element('error');
 let requestError = '';
+let refreshSequence = 0;
 
 function render(snapshot: Snapshot) {
   const view = presentation(snapshot);
@@ -38,8 +39,12 @@ function render(snapshot: Snapshot) {
 }
 
 async function refresh() {
-  try { render(await invoke<Snapshot>('snapshot')); }
-  catch (failure) {
+  const sequence = ++refreshSequence;
+  try {
+    const snapshot = await invoke<Snapshot>('snapshot');
+    if (sequence === refreshSequence) render(snapshot);
+  } catch (failure) {
+    if (sequence !== refreshSequence) return;
     start.disabled = advance.disabled = true;
     pause.disabled = false;
     element('status').textContent = 'Session status unavailable';
