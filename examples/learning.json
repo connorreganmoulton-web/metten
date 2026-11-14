@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "name": "Learning: remember a side",
+  "inputs": [{"id":"ask", "source":"kalshi", "variable":"buyable_contract_price", "unit":"contract_cents", "value_type":"integer"}],
+  "checkpoints": [{"id":"early", "start":0, "end":60, "condition":{"combination":"all", "comparisons":[{"input":"ask", "operator":"lt", "value":40}]}}],
+  "purchase": {"start":60, "deadline":120, "checkpoints":["early"], "relative_to":"early", "relation":"same", "condition":{"combination":"all", "comparisons":[{"input":"ask", "operator":"le", "value":50}]}}
+}

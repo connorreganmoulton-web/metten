@@ -54,7 +54,7 @@ impl Recorder {
         let version: i64 = connection
             .query_row("PRAGMA user_version", [], |r| r.get(0))
             .map_err(|e| e.to_string())?;
-        if version > 1 {
+        if version > 2 {
             return Err(
                 "This workspace was created by a newer Metten. Open it with that version.".into(),
             );
@@ -69,7 +69,14 @@ impl Recorder {
                 reason TEXT NOT NULL,
                 recorded_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
             ) STRICT;
-            PRAGMA user_version=1; COMMIT;",
+            CREATE TABLE IF NOT EXISTS strategy_versions (
+                id INTEGER PRIMARY KEY,
+                json TEXT NOT NULL,
+                recorded_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+            ) STRICT;
+            CREATE TRIGGER IF NOT EXISTS strategy_no_update BEFORE UPDATE ON strategy_versions BEGIN SELECT RAISE(ABORT,'Strategy versions are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS strategy_no_delete BEFORE DELETE ON strategy_versions BEGIN SELECT RAISE(ABORT,'Strategy versions are immutable'); END;
+            PRAGMA user_version=2; COMMIT;",
             )
             .map_err(|e| e.to_string())?;
         Ok((
@@ -79,6 +86,65 @@ impl Recorder {
             },
             settings,
         ))
+    }
+
+    pub(crate) fn import_strategy(
+        &mut self,
+        strategy: &crate::strategy::Strategy,
+    ) -> Result<crate::StrategyVersion, String> {
+        let transaction = self.connection.transaction().map_err(|e| e.to_string())?;
+        transaction
+            .execute(
+                "INSERT INTO strategy_versions(json) VALUES (?1)",
+                [strategy.json()],
+            )
+            .map_err(|e| {
+                format!("Strategy not saved. Check workspace disk space and permissions. {e}")
+            })?;
+        let id = transaction.last_insert_rowid();
+        let recorded_at = transaction
+            .query_row(
+                "SELECT recorded_at FROM strategy_versions WHERE id=?1",
+                [id],
+                |r| r.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+        transaction.commit().map_err(|e| {
+            format!("Strategy save not confirmed. Reopen and inspect versions. {e}")
+        })?;
+        Ok(crate::StrategyVersion {
+            id,
+            json: strategy.json(),
+            explanation: strategy.explanation(),
+            recorded_at,
+        })
+    }
+
+    pub(crate) fn strategy_versions(&self) -> Result<Vec<crate::StrategyVersion>, String> {
+        let mut statement = self
+            .connection
+            .prepare("SELECT id,json,recorded_at FROM strategy_versions ORDER BY id DESC")
+            .map_err(|e| e.to_string())?;
+        let rows = statement
+            .query_map([], |r| {
+                Ok((
+                    r.get::<_, i64>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, String>(2)?,
+                ))
+            })
+            .map_err(|e| e.to_string())?;
+        rows.map(|row| {
+            let (id, json, recorded_at) = row.map_err(|e| e.to_string())?;
+            let strategy = crate::strategy::Strategy::parse(&json)?;
+            Ok(crate::StrategyVersion {
+                id,
+                json,
+                explanation: strategy.explanation(),
+                recorded_at,
+            })
+        })
+        .collect()
     }
 
     pub(crate) fn latest(&self) -> Result<Vec<Record>, String> {

@@ -1,5 +1,18 @@
 //! A controlled non-trading session. No desktop, network, or exchange dependency.
 mod storage;
+pub mod strategy;
+pub use strategy::{
+    AdvanceBatch, Decision, Evaluator, RuleError, RunContext, SliceControl, SliceResult,
+    ValidatedStrategy,
+};
+
+#[derive(Clone, Debug, Serialize)]
+pub struct StrategyVersion {
+    pub id: i64,
+    pub json: String,
+    pub explanation: String,
+    pub recorded_at: String,
+}
 
 use serde::{Deserialize, Serialize};
 use std::{
@@ -82,6 +95,7 @@ struct Request {
 }
 
 pub struct Engine {
+    recorder: Arc<Mutex<Recorder>>,
     sender: Option<mpsc::SyncSender<Request>>,
     shared: Arc<Mutex<Shared>>,
     worker: Option<thread::JoinHandle<()>>,
@@ -104,6 +118,7 @@ impl Engine {
         let history = recorder
             .append(Status::Stopped, tick, "Workspace opened — stopped")
             .map_err(|e| recording_error(&e))?;
+        let recorder = Arc::new(Mutex::new(recorder));
         let shared = Arc::new(Mutex::new(Shared {
             snapshot: Snapshot {
                 running: false,
@@ -119,6 +134,7 @@ impl Engine {
         }));
         let (sender, receiver) = mpsc::sync_channel::<Request>(8);
         let state = shared.clone();
+        let writer = recorder.clone();
         let worker = thread::Builder::new()
             .name("metten-recorder".into())
             .spawn(move || {
@@ -161,6 +177,7 @@ impl Engine {
                         ),
                         Operation::Stop => (Status::Stopped, tick, "Workspace closed — stopped"),
                     };
+                    let mut recorder = writer.lock().expect("recorder poisoned");
                     let result = if stopping {
                         recorder
                             .latest()
@@ -212,6 +229,7 @@ impl Engine {
             })
             .map_err(|e| e.to_string())?;
         Ok(Self {
+            recorder,
             sender: Some(sender),
             shared,
             worker: Some(worker),
@@ -293,6 +311,22 @@ impl Engine {
         }
         state.snapshot.pending += 1;
         Ok(())
+    }
+
+    /// Append-only import; existing versions and session records are never rewritten.
+    pub fn import_strategy(&self, json: &str) -> Result<StrategyVersion, String> {
+        let strategy = strategy::Strategy::parse(json)?;
+        self.recorder
+            .lock()
+            .map_err(|_| "Strategy storage unavailable")?
+            .import_strategy(&strategy)
+    }
+
+    pub fn strategy_versions(&self) -> Result<Vec<StrategyVersion>, String> {
+        self.recorder
+            .lock()
+            .map_err(|_| "Strategy storage unavailable")?
+            .strategy_versions()
     }
 
     pub fn snapshot(&self) -> Snapshot {
