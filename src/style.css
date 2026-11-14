@@ -6,3 +6,5 @@ h1 { font-size: 36px; margin: 12px 0; } h2 { font-size: 23px; } p { line-height:
 button:disabled { opacity: .5; cursor: default; } button:focus-visible, summary:focus-visible { outline: 3px solid #176caa; outline-offset: 3px; }
 #error { color: #982d23; white-space: pre-wrap; } .hint, details, section > p, time { color: #52645b; } #status { font-size: 22px; font-weight: 600; color: #21342d; }
 ol { list-style: none; padding: 0; } li { padding: 12px 0; border-top: 1px solid #e6e9e3; line-height: 1.6; } time { display: block; font-size: 13px; }
+
+label { display: block; margin: 12px 0 6px; } textarea { box-sizing: border-box; width: 100%; font: 14px ui-monospace, monospace; padding: 12px; } pre, #strategy-status { white-space: pre-wrap; overflow-wrap: anywhere; } pre { font: 14px/1.6 ui-monospace, monospace; } input:focus-visible, textarea:focus-visible { outline: 3px solid #176caa; outline-offset: 3px; }

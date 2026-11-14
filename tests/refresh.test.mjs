@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { stripTypeScriptTypes } from 'node:module';
 import { runInNewContext } from 'node:vm';
 import { setImmediate } from 'node:timers/promises';
-import { presentation } from '../src/view.mjs';
+import { presentation, strategyFailure } from '../src/view.mjs';
 
 test('failed refresh does not assert stopped and still lets the user attempt Pause', async () => {
   const elements = new Map();
@@ -24,8 +24,9 @@ test('failed refresh does not assert stopped and still lets the user attempt Pau
   runInNewContext(source, {
     document: { getElementById: element, createElement: element },
     window: { setTimeout(callback) { nextPoll = callback; } },
-    presentation,
+    presentation, strategyFailure,
     async invoke(command, args) {
+      if (command === 'strategies') return { kind: 'versions', versions: [], next_cursor: null };
       if (command === 'control') { controls.push(args.action); return; }
       if (++reads > 1) throw new Error('Controlled status-read failure');
       return {
@@ -66,8 +67,9 @@ for (const olderFails of [false, true]) {
         .replace(/^import .*;\n/gm, '');
       runInNewContext(source, {
         document: { getElementById: element, createElement: element },
-        window: { setTimeout() {} }, presentation,
+        window: { setTimeout() {} }, presentation, strategyFailure,
         invoke(command) {
+          if (command === 'strategies') return Promise.resolve({ kind: 'versions', versions: [], next_cursor: null });
           return command === 'control' ? Promise.resolve()
             : new Promise((resolve, reject) => reads.push({ resolve, reject }));
         },

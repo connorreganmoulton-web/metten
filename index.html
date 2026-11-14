@@ -8,6 +8,13 @@
 <section aria-labelledby="sources-title"><h2 id="sources-title">Sources and settings</h2><p>Isolated dummy verification only. No exchange is connected. Credential actions are unavailable without the native verification runner.</p>
 <label for="credential-value">Dummy credential</label><input id="credential-value" type="password" autocomplete="off" spellcheck="false" maxlength="128">
 <div class="controls"><button id="credential-save">Save</button><button id="credential-replace">Replace</button><button id="credential-remove">Remove</button><button id="credential-check">Check local credential use</button></div><p id="credential-status" role="status">Local credential readability unchecked.</p></section>
+<section aria-labelledby="strategy-title"><h2 id="strategy-title">Strategy versions</h2><p>Local rule preview and immutable history only. These rules do not run the controlled session or trade.</p>
+<label for="strategy-file">Choose a strategy JSON file (maximum 256 KiB)</label><input id="strategy-file" type="file" accept=".json,application/json">
+<label for="strategy-json">Strategy text</label><textarea id="strategy-json" rows="16" spellcheck="false"></textarea>
+<div class="controls"><button id="strategy-preview">Preview current text</button><button id="strategy-save" disabled>Save reviewed version</button></div>
+<p id="strategy-status" role="status"></p><pre id="strategy-explanation" aria-label="Generated explanation"></pre>
+<button id="strategy-reload">Refresh saved versions</button><p id="strategy-list-status" role="status"></p><ol id="strategy-versions"></ol><button id="strategy-more" disabled>More versions</button>
+<pre id="strategy-detail" aria-label="Saved version details" role="status"></pre><button id="strategy-copy" disabled>Edit a copy</button></section>
 <section aria-labelledby="history-title"><h2 id="history-title">History</h2><p>Latest 100 saved records · timestamps in UTC · earlier records remain stored.</p><ol id="history"></ol></section>
 <details><summary>Recording details</summary><p id="settings">Checking writer settings…</p></details>
 </main><script type="module" src="/src/main.ts"></script></body></html>

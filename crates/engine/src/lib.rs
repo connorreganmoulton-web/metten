@@ -6,12 +6,159 @@ pub use strategy::{
     ValidatedStrategy,
 };
 
+pub const STRATEGY_DOCUMENT_BYTES: usize = 256 * 1024;
+pub const STRATEGY_DETAIL_BYTES: usize = 1024 * 1024;
+pub const STRATEGY_PAGE_BYTES: usize = 32 * 1024;
+
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+pub struct StrategyFailure {
+    pub code: &'static str,
+    pub message: &'static str,
+}
+impl StrategyFailure {
+    pub fn new(code: &'static str) -> Self {
+        Self {
+            code,
+            message: match code {
+                "busy" => "Strategy action already in progress. Wait and retry.",
+                "quitting" => "Quitting — wait for the stopped state to be saved.",
+                "not_reviewed" => "Preview the current text before saving.",
+                "not_found" => "This version was not found. Refresh saved versions.",
+                "resource_limit" => {
+                    "This strategy response is too large to show completely. Stored history is preserved."
+                }
+                "storage" => {
+                    "Local strategy action failed. Inspect saved versions before retrying a save."
+                }
+                _ => "Invalid strategy request.",
+            },
+        }
+    }
+}
+#[derive(Clone, Debug)]
+pub enum StrategyRequest {
+    Preview { json: String },
+    Save { json: String, reviewed_json: String },
+    List { before_id: Option<i64> },
+    Detail { version_id: i64 },
+}
+/// Decode before cloning any caller-provided text; never echo framework diagnostics.
+pub fn decode_strategy_request(
+    value: &serde_json::Value,
+) -> Result<StrategyRequest, StrategyFailure> {
+    let invalid = || StrategyFailure::new("invalid_request");
+    let object = value.as_object().ok_or_else(invalid)?;
+    let operation = object
+        .get("operation")
+        .and_then(|v| v.as_str())
+        .ok_or_else(invalid)?;
+    let allowed: &[&str] = match operation {
+        "preview" => &["operation", "json"],
+        "save" => &["operation", "json", "reviewed_json"],
+        "list" => &["operation", "before_id"],
+        "detail" => &["operation", "version_id"],
+        _ => return Err(invalid()),
+    };
+    if object.keys().any(|k| !allowed.contains(&k.as_str())) {
+        return Err(invalid());
+    }
+    let text = |key| -> Result<&str, StrategyFailure> {
+        let text = object
+            .get(key)
+            .and_then(|v| v.as_str())
+            .ok_or_else(invalid)?;
+        if text.len() > STRATEGY_DOCUMENT_BYTES {
+            return Err(StrategyFailure::new("resource_limit"));
+        }
+        Ok(text)
+    };
+    let id = |key| -> Result<i64, StrategyFailure> {
+        let s = object
+            .get(key)
+            .and_then(|v| v.as_str())
+            .ok_or_else(invalid)?;
+        if s.is_empty()
+            || s.len() > 19
+            || s.starts_with('0')
+            || !s.bytes().all(|c| c.is_ascii_digit())
+        {
+            return Err(invalid());
+        }
+        s.parse::<i64>().ok().filter(|n| *n > 0).ok_or_else(invalid)
+    };
+    Ok(match operation {
+        "preview" => StrategyRequest::Preview {
+            json: text("json")?.into(),
+        },
+        "save" => {
+            let json = text("json")?;
+            let reviewed = text("reviewed_json")?;
+            StrategyRequest::Save {
+                json: json.into(),
+                reviewed_json: reviewed.into(),
+            }
+        }
+        "list" => StrategyRequest::List {
+            before_id: if object.contains_key("before_id") {
+                Some(id("before_id")?)
+            } else {
+                None
+            },
+        },
+        "detail" => StrategyRequest::Detail {
+            version_id: id("version_id")?,
+        },
+        _ => unreachable!(),
+    })
+}
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum VersionStatus {
+    Supported,
+    LegacyReadOnly,
+    Unsupported,
+    InvalidRecord,
+}
 #[derive(Clone, Debug, Serialize)]
-pub struct StrategyVersion {
-    pub id: i64,
-    pub json: String,
-    pub explanation: String,
+pub struct StrategySummary {
+    pub id: String,
     pub recorded_at: String,
+    pub display_name: Option<String>,
+    pub format_revision: Option<i64>,
+    pub status: VersionStatus,
+}
+#[derive(Clone, Debug, Serialize)]
+pub struct StrategyDetail {
+    pub summary: StrategySummary,
+    pub json: Option<String>,
+    pub explanation: Option<String>,
+    pub meaning_id: Option<String>,
+    pub notice: &'static str,
+}
+#[derive(Clone, Debug, Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum StrategyResponse {
+    Preview {
+        format_revision: u8,
+        meaning_id: &'static str,
+        explanation: String,
+        requirements: strategy::Requirements,
+        notice: &'static str,
+    },
+    RuleErrors {
+        errors: Vec<RuleError>,
+        truncated: bool,
+    },
+    Saved {
+        version: StrategySummary,
+    },
+    Versions {
+        versions: Vec<StrategySummary>,
+        next_cursor: Option<String>,
+    },
+    Detail {
+        version: StrategyDetail,
+    },
 }
 
 use serde::{Deserialize, Serialize};
@@ -313,20 +460,80 @@ impl Engine {
         Ok(())
     }
 
-    /// Append-only import; existing versions and session records are never rewritten.
-    pub fn import_strategy(&self, json: &str) -> Result<StrategyVersion, String> {
-        let strategy = strategy::Strategy::parse(json)?;
-        self.recorder
-            .lock()
-            .map_err(|_| "Strategy storage unavailable")?
-            .import_strategy(&strategy)
+    /// All writes revalidate the exact reviewed bytes under the fixed format-2 meaning.
+    pub fn strategies(
+        &self,
+        request: StrategyRequest,
+    ) -> Result<StrategyResponse, StrategyFailure> {
+        self.strategies_unless_quitting(request, &std::sync::atomic::AtomicBool::new(false))
     }
 
-    pub fn strategy_versions(&self) -> Result<Vec<StrategyVersion>, String> {
-        self.recorder
-            .lock()
-            .map_err(|_| "Strategy storage unavailable")?
-            .strategy_versions()
+    /// Recheck shutdown after validation and storage admission, immediately before a write.
+    pub fn strategies_unless_quitting(
+        &self,
+        request: StrategyRequest,
+        quitting: &std::sync::atomic::AtomicBool,
+    ) -> Result<StrategyResponse, StrategyFailure> {
+        let response = match request {
+            StrategyRequest::Preview { json } => match ValidatedStrategy::parse(&json) {
+                Ok(rules) => StrategyResponse::Preview {
+                    format_revision: 2,
+                    meaning_id: "metten_rules_2",
+                    explanation: rules.explanation().into(),
+                    requirements: rules.requirements().clone(),
+                    notice: "Rule support only. Source access is unverified; no trading is connected.",
+                },
+                Err(errors) => StrategyResponse::RuleErrors {
+                    truncated: errors.len() > 20,
+                    errors: errors.into_iter().take(20).collect(),
+                },
+            },
+            StrategyRequest::Save {
+                json,
+                reviewed_json,
+            } => {
+                if json != reviewed_json {
+                    return Err(StrategyFailure::new("not_reviewed"));
+                }
+                let rules = match ValidatedStrategy::parse(&json) {
+                    Ok(rules) => rules,
+                    Err(errors) => {
+                        return Ok(StrategyResponse::RuleErrors {
+                            truncated: errors.len() > 20,
+                            errors: errors.into_iter().take(20).collect(),
+                        });
+                    }
+                };
+                let mut recorder = self
+                    .recorder
+                    .lock()
+                    .map_err(|_| StrategyFailure::new("storage"))?;
+                if quitting.load(std::sync::atomic::Ordering::SeqCst) {
+                    return Err(StrategyFailure::new("quitting"));
+                }
+                StrategyResponse::Saved {
+                    version: recorder.save_strategy(&rules)?,
+                }
+            }
+            StrategyRequest::List { before_id } => self
+                .recorder
+                .lock()
+                .map_err(|_| StrategyFailure::new("storage"))?
+                .strategy_versions(before_id)?,
+            StrategyRequest::Detail { version_id } => self
+                .recorder
+                .lock()
+                .map_err(|_| StrategyFailure::new("storage"))?
+                .strategy_detail(version_id)?,
+        };
+        if serde_json::to_vec(&response)
+            .map_err(|_| StrategyFailure::new("storage"))?
+            .len()
+            > STRATEGY_DETAIL_BYTES
+        {
+            return Err(StrategyFailure::new("resource_limit"));
+        }
+        Ok(response)
     }
 
     pub fn snapshot(&self) -> Snapshot {

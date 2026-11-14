@@ -11,6 +11,7 @@ struct Workspace {
     engine: Result<Engine, String>,
     #[cfg(target_os = "macos")]
     credentials: credential::Credentials,
+    strategy_operation: std::sync::Arc<StrategyAdmission>,
     quitting: AtomicBool,
     exit_ready: AtomicBool,
     quit_error: std::sync::Mutex<Option<String>>,
@@ -40,6 +41,83 @@ fn control(action: Action, workspace: tauri::State<'_, Workspace>) -> Result<(),
         .as_ref()
         .map_err(Clone::clone)?
         .request(action)
+}
+
+#[derive(Default)]
+struct StrategyAdmission {
+    busy: AtomicBool,
+    completion: std::sync::Mutex<()>,
+    idle: std::sync::Condvar,
+}
+struct StrategyGuard(std::sync::Arc<StrategyAdmission>);
+impl Drop for StrategyGuard {
+    fn drop(&mut self) {
+        let _completion = self.0.completion.lock().unwrap_or_else(|e| e.into_inner());
+        self.0.busy.store(false, Ordering::SeqCst);
+        self.0.idle.notify_all();
+    }
+}
+fn admit_strategy(
+    operation: &std::sync::Arc<StrategyAdmission>,
+    quitting: &AtomicBool,
+) -> Result<StrategyGuard, metten_engine::StrategyFailure> {
+    if quitting.load(Ordering::SeqCst) {
+        return Err(metten_engine::StrategyFailure::new("quitting"));
+    }
+    operation
+        .busy
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .map_err(|_| metten_engine::StrategyFailure::new("busy"))?;
+    let guard = StrategyGuard(operation.clone());
+    if quitting.load(Ordering::SeqCst) {
+        return Err(metten_engine::StrategyFailure::new("quitting"));
+    }
+    Ok(guard)
+}
+fn decode_strategies(
+    body: &tauri::ipc::InvokeBody,
+) -> Result<metten_engine::StrategyRequest, metten_engine::StrategyFailure> {
+    let tauri::ipc::InvokeBody::Json(body) = body else {
+        return Err(metten_engine::StrategyFailure::new("invalid_request"));
+    };
+    metten_engine::decode_strategy_request(body)
+}
+fn wait_for_strategy(operation: &StrategyAdmission) {
+    let mut completion = operation
+        .completion
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    while operation.busy.load(Ordering::SeqCst) {
+        completion = operation
+            .idle
+            .wait(completion)
+            .unwrap_or_else(|e| e.into_inner());
+    }
+}
+#[tauri::command]
+async fn strategies(
+    request: tauri::ipc::Request<'_>,
+    app: tauri::AppHandle,
+) -> Result<metten_engine::StrategyResponse, metten_engine::StrategyFailure> {
+    let request = decode_strategies(request.body())?;
+    let guard = {
+        let workspace = app.state::<Workspace>();
+        admit_strategy(&workspace.strategy_operation, &workspace.quitting)?
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        let _guard = guard;
+        let workspace = app.state::<Workspace>();
+        if workspace.quitting.load(Ordering::SeqCst) {
+            return Err(metten_engine::StrategyFailure::new("quitting"));
+        }
+        workspace
+            .engine
+            .as_ref()
+            .map_err(|_| metten_engine::StrategyFailure::new("storage"))?
+            .strategies_unless_quitting(request, &workspace.quitting)
+    })
+    .await
+    .map_err(|_| metten_engine::StrategyFailure::new("storage"))?
 }
 
 // Decode manually: framework type errors must never quote submitted values.
@@ -103,6 +181,7 @@ fn begin_quit(app: &tauri::AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
         let workspace = app.state::<Workspace>();
+        wait_for_strategy(&workspace.strategy_operation);
         #[cfg(target_os = "macos")]
         let _credential_operation = workspace
             .credentials
@@ -168,10 +247,10 @@ fn main() {
                 std::fs::create_dir_all(&directory).map_err(|e| format!("Cannot open workspace. Check disk space and folder permissions, then reopen. {e}"))?;
                 Engine::open(directory.join("session.sqlite"))
             })();
-            app.manage(Workspace { engine, #[cfg(target_os = "macos")] credentials: credential::Credentials::setup(), quitting: AtomicBool::new(false), exit_ready: AtomicBool::new(false), quit_error: std::sync::Mutex::new(None) });
+            app.manage(Workspace { engine, #[cfg(target_os = "macos")] credentials: credential::Credentials::setup(), strategy_operation: std::sync::Arc::new(StrategyAdmission::default()), quitting: AtomicBool::new(false), exit_ready: AtomicBool::new(false), quit_error: std::sync::Mutex::new(None) });
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![snapshot, control, credential])
+        .invoke_handler(tauri::generate_handler![snapshot, control, credential, strategies])
         .build(context())
         .expect("Could not open the Metten application")
         .run(|app, event| match event {
@@ -228,6 +307,103 @@ mod permissions_tests {
         }
     }
 
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn direct_strategy_requests_are_bounded_sanitized_and_independent_of_credentials() {
+        use serde_json::json;
+        use tauri::ipc::InvokeBody;
+        let marker = "private-marker";
+        for body in [
+            InvokeBody::Raw(marker.as_bytes().to_vec()),
+            InvokeBody::Json(json!({"operation":marker})),
+            InvokeBody::Json(json!({"operation":"preview","json":"x".repeat(262145)})),
+            InvokeBody::Json(
+                json!({"operation":"save","json":"{}","reviewed_json":"{}","extra":marker}),
+            ),
+            InvokeBody::Json(json!({"operation":"detail","version_id":9007199254740993u64})),
+        ] {
+            let error = super::decode_strategies(&body).unwrap_err();
+            assert!(!serde_json::to_string(&error).unwrap().contains(marker));
+        }
+        assert!(
+            super::decode_strategies(&InvokeBody::Json(
+                json!({"operation":"detail","version_id":"9007199254740993"})
+            ))
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn strategy_admission_releases_on_success_error_cancel_and_panic() {
+        use std::sync::{Arc, atomic::AtomicBool};
+        let operation = Arc::new(super::StrategyAdmission::default());
+        let quitting = AtomicBool::new(false);
+        let held = super::admit_strategy(&operation, &quitting).unwrap();
+        assert_eq!(
+            super::admit_strategy(&operation, &quitting)
+                .err()
+                .unwrap()
+                .code,
+            "busy"
+        );
+        drop(held);
+        let error: Result<(), ()> = {
+            let _guard = super::admit_strategy(&operation, &quitting).unwrap();
+            Err(())
+        };
+        assert!(error.is_err());
+        assert!(
+            std::panic::catch_unwind(|| {
+                let _guard = super::admit_strategy(&operation, &quitting).unwrap();
+                panic!("controlled failure");
+            })
+            .is_err()
+        );
+        // A rejected/canceled queued closure drops its owned guard without executing.
+        let guard = super::admit_strategy(&operation, &quitting).unwrap();
+        let task = move || {
+            drop(guard);
+        };
+        drop(task);
+        drop(super::admit_strategy(&operation, &quitting).unwrap());
+        quitting.store(true, std::sync::atomic::Ordering::SeqCst);
+        assert_eq!(
+            super::admit_strategy(&operation, &quitting)
+                .err()
+                .unwrap()
+                .code,
+            "quitting"
+        );
+    }
+
+    #[test]
+    fn quit_waits_for_admitted_strategy_before_stopping_the_session() {
+        use std::sync::{Arc, atomic::AtomicBool};
+        let operation = Arc::new(super::StrategyAdmission::default());
+        let quitting = AtomicBool::new(false);
+        let guard = super::admit_strategy(&operation, &quitting).unwrap();
+        quitting.store(true, std::sync::atomic::Ordering::SeqCst);
+        let (sent, received) = std::sync::mpsc::channel();
+        let waiting = operation.clone();
+        let task = std::thread::spawn(move || {
+            super::wait_for_strategy(&waiting);
+            sent.send(()).unwrap();
+        });
+        assert!(received.try_recv().is_err());
+        drop(guard);
+        received
+            .recv_timeout(std::time::Duration::from_secs(2))
+            .unwrap();
+        task.join().unwrap();
+        assert_eq!(
+            super::admit_strategy(&operation, &quitting)
+                .err()
+                .unwrap()
+                .code,
+            "quitting"
+        );
+    }
+
     #[test]
     fn app_commands_are_limited_to_the_local_main_window() {
         use tauri::ipc::Origin;
@@ -236,7 +412,7 @@ mod permissions_tests {
         let remote = Origin::Remote {
             url: "https://example.invalid".parse().unwrap(),
         };
-        for command in ["snapshot", "control", "credential"] {
+        for command in ["snapshot", "control", "credential", "strategies"] {
             assert!(
                 authority
                     .resolve_access(command, "main", "main", &Origin::Local)

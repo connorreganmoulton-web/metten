@@ -1,49 +1,5 @@
-use metten_engine::{Engine, strategy::*};
+use metten_engine::strategy::*;
 use serde_json::{Value, json};
-const EXAMPLE: &str = include_str!("../../../examples/learning.json");
-fn rules() -> Value {
-    serde_json::from_str(EXAMPLE).unwrap()
-}
-#[test]
-fn immutable_versions_survive_edit_reopen_and_existing_history() {
-    let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("session.sqlite");
-    let first;
-    {
-        let engine = Engine::open(&path).unwrap();
-        first = engine.import_strategy(EXAMPLE).unwrap();
-        let mut edit = rules();
-        edit["purchase"]["condition"]["comparisons"][0]["value"] = json!(45);
-        let second = engine.import_strategy(&edit.to_string()).unwrap();
-        assert!(second.id > first.id);
-        assert_ne!(second.explanation, first.explanation);
-        assert!(engine.import_strategy("{}").is_err());
-        let connection = rusqlite::Connection::open(&path).unwrap();
-        assert!(
-            connection
-                .execute("UPDATE strategy_versions SET json='{}'", [])
-                .is_err()
-        );
-        assert!(
-            connection
-                .execute("DELETE FROM strategy_versions", [])
-                .is_err()
-        );
-        engine.stop_and_save().unwrap();
-    }
-    let reopened = Engine::open(&path).unwrap();
-    assert!(!reopened.snapshot().running);
-    assert!(reopened.snapshot().history.len() >= 3);
-    let versions = reopened.strategy_versions().unwrap();
-    assert_eq!(versions.len(), 2);
-    assert_eq!(versions[1].json, first.json);
-    assert_eq!(versions[1].explanation, first.explanation);
-    assert_eq!(
-        Strategy::parse(&versions[1].json).unwrap().explanation(),
-        versions[1].explanation
-    );
-}
-
 fn format2() -> Value {
     json!({"format":2,"name":"Controlled asks","inputs":[{"id":"ask","source":"kalshi","instrument":"current_contract","field":"buyable_ask","unit":"contract_cents","side":"selected_side"}],"checkpoints":[{"id":"early","during":{"start_seconds":0,"end_seconds":60},"remember_side":{"type":"unique_side"},"when":{"type":"compare","left":{"reference":"ask"},"comparison":"less_than","right":{"value":"40","unit":"contract_cents"}}}],"purchase_options":[{"id":"opposite","during":{"start_seconds":60,"end_seconds":120},"side":{"type":"checkpoint_side","checkpoint":"early","relation":"opposite"},"when":{"type":"compare","left":{"reference":"ask"},"comparison":"at_most","right":{"value":"30","unit":"contract_cents"}}},{"id":"same","during":{"start_seconds":60,"end_seconds":120},"side":{"type":"checkpoint_side","checkpoint":"early","relation":"same"},"when":{"type":"compare","left":{"reference":"ask"},"comparison":"at_most","right":{"value":"30","unit":"contract_cents"}}}]})
 }

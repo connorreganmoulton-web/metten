@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-strategies"
+description = "Enables the strategies command without any pre-configured scope."
+commands.allow = ["strategies"]
+
+[[permission]]
+identifier = "deny-strategies"
+description = "Denies the strategies command without any pre-configured scope."
+commands.deny = ["strategies"]
