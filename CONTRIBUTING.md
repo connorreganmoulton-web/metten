@@ -59,8 +59,8 @@ on the exact proposed revision before accepting any pin update.
 ## Maintain security scanning
 
 `.github/workflows/codeql.yml` runs the standard CodeQL queries. Rust runs on
-macOS so the Mac-only credential module participates in analysis;
-JavaScript/TypeScript, Actions and Python run on Linux. Swift's standalone
+macOS to address the Mac-only credential coverage gap; actual semantic coverage
+remains pending. JavaScript/TypeScript, Actions and Python run on Linux. Swift's standalone
 verification harness is not scanned. The scanner does not execute that harness
 or access credentials. See [issue #30 evidence](docs/verification/issue-30.md)
 for coverage limitations and the acceptance still needed before making scanning
