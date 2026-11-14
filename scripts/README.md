@@ -4,6 +4,8 @@
 
 Use [check-staged.py](check-staged.py) to check a mixed-work checkpoint independently of unstaged files. Usage, failure handling and archival-format exceptions are in [the agent verification guide](../docs/agents/verification.md#verify-a-mixed-work-checkpoint). Its disposable-Git regressions run with `python3 tests/check-staged.test.py` and in CI. The helper runs only the supplied command; it does not start native or credential checks itself.
 
+The current non-trading package checklist, prerequisites, artifact identity, controlled storage failure and cleanup procedure are in [issue-31.md](../docs/verification/issue-31.md). It reuses this runner and the existing native app; it does not replace later release acceptance.
+
 ## Overview
 
 [verify-credential.swift](verify-credential.swift) is the dummy-only packaged-app runner for issue #3. It is a verification tool, not part of the trading engine. Its completed evidence and limitations are in [issue-3.md](../docs/verification/issue-3.md); process-only regression checks are described in [tests](../tests/README.md).
@@ -19,6 +21,7 @@ Use [check-staged.py](check-staged.py) to check a mixed-work checkpoint independ
 
 - `waitForChildExit()` must confirm the exact spawned child's exit before resources are released. `requestQuit()` requests guarded window-close once; `awaitRetainedChildExit()` retains ownership if exit is pending. No force-kill or success inference from a timeout.
 - `send()` catches a closed socket without terminating through SIGPIPE. `startChildOutputCapture()` drains output concurrently; `collectChildOutput()` joins the reader before scanning or closing it.
+- `browserStoragePaths()` validates the tested bundle identifier and selects its own WebKit/cache/HTTPStorage paths; renamed test bundles do not scan the foundation app’s directories. Its path and rejection assertions run in the process-only self-test.
 - `inspectAccess()` checks the actual item location, creator identity and protected sensitive authorizations. `scan()` rejects either dummy marker in captured output or regular files. This is bounded marker evidence, not an exhaustive secret-leak audit.
 - `metadata()` snapshots default/search-list paths and requires equality after creation, execution and cleanup. The runner does not change or restore global Keychain lists.
 - Cleanup targets only recorded owned Keychains, directory and failed-write sidecars. Sidecar removal checks inode identity; unconfirmed child exit keeps resources owned, and failures remain failures after late cleanup.
@@ -29,4 +32,4 @@ Normal execution launches Metten repeatedly, creates two disposable Keychains an
 
 ## Verification
 
-`python3 tests/credential-runner.test.py` compiles this runner and exercises the process-only self-test. The separate packaged invocation is documented in [issue-3.md](../docs/verification/issue-3.md). Do not rerun packaged credential verification for documentation-only changes; existing bounded evidence is reused, not newly executed.
+`python3 tests/credential-runner.test.py` compiles this runner and exercises the process-only self-test. The separate packaged invocation is documented in [issue-3.md](../docs/verification/issue-3.md). Do not rerun packaged credential verification for ordinary documentation-only changes. An explicitly requested checklist execution, such as issue #31, records fresh artifact/environment evidence and distinguishes it from earlier bounded results.
