@@ -2,11 +2,60 @@
 
 ## Current evidence index
 
-Issue #30 remains open: default setup completed, but Rust semantic coverage
-misses the Mac credential boundary. Representative pull-request acceptance and
-merge-gate verification are not established. Analysis is
-nonblocking; the existing `mac-foundation` merge requirement remains in force.
-This record must not be read as security or release acceptance.
+Issue #30 remains open. The initial default scan's Mac credential coverage gap
+is recorded below. A dedicated workflow now proposes Rust analysis on macOS;
+its actual extraction evidence and independent review are still pending.
+Scanning remains nonblocking; the existing `mac-foundation` merge requirement
+remains in force. This record is not security or release acceptance.
+
+## Mac-runner correction — 14 November 2026 UTC
+
+Scope: `.github/workflows/codeql.yml`, the contributor maintenance notes, and
+this evidence record. The branch incorporates main at
+`4957ea16af9740da64544a1e9911d34f96a77373`; no application source, compiler,
+Foundation workflow or required merge check is changed.
+
+The new workflow uses `macos-15` for Rust and `ubuntu-latest` for
+JavaScript/TypeScript, Actions and Python. All use build mode `none` and the
+standard default queries, without custom packs or path exclusions. Actions and
+Python preserve the other working default-setup analyses. Swift remains excluded
+because its standalone harness failed default autobuild; no Swift coverage is
+claimed. Pushes to main, pull requests to main and a weekly schedule trigger
+analysis. No `pull_request_target` event, application launch or credential test
+is introduced. The scanner alone receives `security-events: write` to upload
+results; ordinary Foundation permissions remain `contents: read`.
+
+The checkout and Rust installer pins reuse #28's reviewed revisions. The Rust
+installer explicitly preserves **1.100.0**. CodeQL `init` and `analyze` use
+[`33d7b85da1a04171e211befe2c739303b9a4c066`](https://github.com/github/codeql-action/commit/33d7b85da1a04171e211befe2c739303b9a4c066),
+resolved from **v4.39.3**, the same action version used by the initial default
+scan. The annotated tag is unsigned; GitHub reports the target commit signature
+valid. Reviewed both action manifests and their initialization/finalization,
+query-running and upload entry paths. Both run bundled Node 24 code and contain
+no nested action references. Default tool selection and standard queries remain
+upstream-managed, rather than introducing a separate toolchain pin. This is a
+bounded provenance/configuration review, not an audit of all bundled code.
+The existing monthly Actions Dependabot configuration covers this new workflow;
+the contributor guide records paired updates and the existing manual fallback.
+
+Default setup must be disabled before this workflow can upload results; GitHub
+blocks advanced uploads while default setup is enabled. That transition and the
+first advanced run will be recorded in the issue/PR. Until the workflow is merged,
+main has no advanced workflow, so default-branch scanning cannot be claimed.
+No required scanning check will be promoted before actual default-branch and
+representative-PR evidence, alert triage and missing/failed-analysis enforcement.
+
+Local preparation checks passed: Ruby YAML parsing plus assertions for the
+language/runner matrix, event scope, least-privilege permissions, fail-fast
+behavior, immutable action references, Rust 1.100.0 and build mode `none`.
+Foundation workflow, compiler and application lockfiles match current main
+byte-for-byte; whitespace check passed. No repository actionlint gate is wired.
+Independent review and hosted execution remain outstanding.
+
+Required next evidence: full final-head Foundation checks; successful per-language
+CodeQL jobs; Rust extraction with the native module's semantic analyzer available,
+including macro/type diagnostics, not merely disappearance of one warning or a
+9/9 file count; and default-branch validation after manual merge.
 
 ## Baseline and setup — 14 November 2026 UTC
 
