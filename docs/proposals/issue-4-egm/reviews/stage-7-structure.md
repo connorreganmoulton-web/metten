@@ -1,0 +1,7 @@
+**S7-1 — Nit — Feature lines 320–322: stale next-step instructions.** Line 320 says the next step is drafting Detailed Implementation and stopping at its approval gate, while line 322 says that section is approved and the document is finalized for formal review. This leaves two apparent workflow states at the end of the feature specification. Smallest correction: label line 320 as historical approval context and remove its obsolete next-step instructions.
+
+No other structural findings. The H1 → H2 → H3 hierarchy is consistent; tables, lists and the architecture fence are well formed. The problem, goals/non-goals, architecture, alternatives and explicit constraints/mitigations are covered under clear equivalent headings. The supplied standard does not mandate a separately titled Risks section. Existing local Markdown links resolve to supplied documents; proposed future documentation paths are deliverables, not missing-current references.
+
+Read attestation: fully read Feature lines 1–324, structural persona, feature-spec standard, plugin `docs/codex.md`, and all eight required context documents. An initially truncated combined read was completed through smaller reads. Verified target SHA-256: `3f6f8c23492a41131f56cb81e899860da5565a28519f61ac79ffbe081731c853`.
+
+Skipped Detailed Implementation review and external URL checks, as scoped. No edits, builds, tests, network/account access or delegation occurred; captured listing content remains a dynamic shell and does not verify indexed instrument names.
