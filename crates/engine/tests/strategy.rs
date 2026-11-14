@@ -2661,3 +2661,218 @@ fn phase1_registered_contract_hour_survives_its_exact_market_entry() {
         started.elapsed().as_millis()
     );
 }
+
+#[test]
+fn review_repeated_market_boundary_preserves_accepted_state() {
+    for same_transaction in [false, true] {
+        let mut e = entered(format2());
+        let mut locked = objective();
+        locked.confirmed_quantity = 4;
+        locked.locked_side = Some(Side::Yes);
+        finish(&mut e, batch(1, 0, vec![]), Some(locked.clone()));
+        let before = e.snapshot().clone();
+        let mut changes = prices("61", "39", 2);
+        changes.push(EvidenceChange::MarketBoundary {
+            market_id: "one".into(),
+        });
+        if same_transaction {
+            changes.push(EvidenceChange::MarketBoundary {
+                market_id: "one".into(),
+            });
+        }
+        e.begin(batch(1, 3, changes)).unwrap();
+        loop {
+            match e.process_slice(SliceControl::Continue, Some(locked.clone())) {
+                SliceResult::Pending { .. } => (),
+                SliceResult::Rejected(error) => {
+                    assert_eq!(error.code, "incompatible_market");
+                    break;
+                }
+                other => panic!("expected rejection, got {other:?}"),
+            }
+        }
+        assert_eq!(e.snapshot().checkpoints, before.checkpoints);
+        let d = finish(&mut e, batch(60001, 4, prices("29", "29", 2)), Some(locked));
+        let candidate = d.candidate.unwrap();
+        assert_eq!(candidate.side, Side::Yes);
+        assert_eq!(candidate.remaining_quantity, 6);
+        let d = finish(&mut e, batch(60001, 5, vec![]), Some(objective()));
+        assert!(
+            d.candidate.is_none(),
+            "regressed objective must stay blocked"
+        );
+        assert_eq!(d.checkpoints, before.checkpoints);
+    }
+    let mut e = entered(format2());
+    let mut next_objective = objective();
+    next_objective.market_id = "two".into();
+    finish(
+        &mut e,
+        batch(
+            2,
+            3,
+            vec![
+                EvidenceChange::RegisterMarket {
+                    descriptor: descriptor("two", 2),
+                    bindings: vec![
+                        binding(3, "ask", "two", Side::Yes),
+                        binding(4, "ask", "two", Side::No),
+                    ],
+                },
+                lease(3),
+                lease(4),
+            ],
+        ),
+        None,
+    );
+    let d = finish(
+        &mut e,
+        batch(
+            2,
+            4,
+            vec![
+                observation_change(3, 1, "61"),
+                observation_change(4, 1, "39"),
+                EvidenceChange::MarketBoundary {
+                    market_id: "two".into(),
+                },
+            ],
+        ),
+        Some(next_objective),
+    );
+    assert_eq!(d.checkpoints["early"].side, Some(Side::No));
+    assert_eq!(d.checkpoints["early"].transaction, 4);
+    assert_eq!(d.checkpoints["early"].at_ms, 2);
+    // Duplicate boundaries must also be rejected before the first market entry.
+    for separate_transactions in [false, true] {
+        let mut e = Evaluator::new(
+            ValidatedStrategy::parse(&format2().to_string()).unwrap(),
+            context(),
+        )
+        .unwrap();
+        let boundary = EvidenceChange::MarketBoundary {
+            market_id: "one".into(),
+        };
+        let mut b = batch(1, 1, vec![boundary.clone()]);
+        if separate_transactions {
+            b.transactions.push(NormalizedTransaction {
+                number: 2,
+                at_ms: 1,
+                changes: vec![boundary],
+            });
+        } else {
+            b.transactions[0].changes.push(boundary);
+        }
+        e.begin(b).unwrap();
+        loop {
+            match e.process_slice(SliceControl::Continue, None) {
+                SliceResult::Pending { .. } => (),
+                SliceResult::Rejected(error) => {
+                    assert_eq!(error.code, "incompatible_market");
+                    break;
+                }
+                other => panic!("expected rejection, got {other:?}"),
+            }
+        }
+        assert!(e.snapshot().checkpoints.is_empty());
+    }
+}
+
+#[test]
+fn review_confirmation_requires_new_sequence_after_count_source_loss() {
+    let mut r = current_rule(
+        json!({"type":"confirmed_updates","count":2,"count_input":"signal","condition":ask_below()}),
+    );
+    r["inputs"].as_array_mut().unwrap().push(json!({"id":"signal","source":"coinbase","instrument":"btc_usd","field":"last_trade","unit":"usd_per_btc"}));
+    let mut c = context();
+    c.bindings.push(BindingDescriptor {
+        binding_id: 3,
+        input_id: "signal".into(),
+        scope: BindingScope::Underlying,
+    });
+    let mut e = Evaluator::new(ValidatedStrategy::parse(&r.to_string()).unwrap(), c).unwrap();
+    let mut initial = batch(
+        1,
+        2,
+        vec![
+            observation_change(1, 1, "30"),
+            observation_change(2, 1, "70"),
+            observation_change(3, 1, "101"),
+            EvidenceChange::MarketBoundary {
+                market_id: "one".into(),
+            },
+        ],
+    );
+    initial.transactions.insert(
+        0,
+        NormalizedTransaction {
+            number: 1,
+            at_ms: 0,
+            changes: vec![lease(1), lease(2), lease(3)],
+        },
+    );
+    assert!(
+        finish(&mut e, initial, Some(objective()))
+            .candidate
+            .is_none()
+    );
+    for (number, changes, eligible) in [
+        (
+            3,
+            vec![EvidenceChange::Validity {
+                binding_id: 3,
+                valid_until_ms: 0,
+                reason: Some("source loss".into()),
+            }],
+            false,
+        ),
+        (4, vec![lease(3)], false),
+        (5, vec![observation_change(3, 2, "101")], false),
+        (6, vec![observation_change(3, 2, "101")], false),
+        (7, vec![observation_change(3, 3, "101")], true),
+        (
+            8,
+            vec![EvidenceChange::Validity {
+                binding_id: 2,
+                valid_until_ms: 0,
+                reason: Some("unrelated side loss".into()),
+            }],
+            true,
+        ),
+    ] {
+        assert_eq!(
+            finish(&mut e, batch(1, number, changes), Some(objective()))
+                .candidate
+                .is_some(),
+            eligible,
+            "transaction {number}"
+        );
+    }
+}
+
+#[test]
+fn review_counting_inputs_require_a_bound_side() {
+    let scalar = json!({"type":"compare","left":{"value":"1","unit":"contract_cents"},"comparison":"less_than","right":{"value":"2","unit":"contract_cents"}});
+    for when in [
+        json!({"type":"confirmed_updates","count":2,"count_input":"ask","condition":scalar}),
+        json!({"type":"after_checkpoint_update","checkpoint":"early","count_input":"ask"}),
+    ] {
+        let mut r = format2();
+        r["checkpoints"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"id":"boolean","when":when}));
+        assert_eq!(
+            ValidatedStrategy::parse(&r.to_string()).unwrap_err()[0].code,
+            "unbound_side"
+        );
+        for selector in [
+            json!({"type":"fixed","side":"no"}),
+            json!({"type":"unique_side"}),
+            json!({"type":"checkpoint_side","checkpoint":"early","relation":"same"}),
+        ] {
+            r["checkpoints"][1]["remember_side"] = selector;
+            ValidatedStrategy::parse(&r.to_string()).unwrap();
+        }
+    }
+}

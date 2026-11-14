@@ -6,6 +6,8 @@
 
 ## Current evidence index
 
+- [Local corrections for the three PR #27 review findings, final checks and resource reassessment](#pr-27-review-corrections--local-only)
+
 - [Completed native packaged walkthrough, immutable versions, session preservation and cleanup](#named-native-package-walkthrough--14-november-2026)
 
 - [Owner-operated native continuation and remaining observations](#owner-operated-native-continuation--14-november-2026)
@@ -1392,3 +1394,58 @@ First commit `2aa3fd5` contains the seven inherited retrospective improvements, 
 Second commit scope: the four strategy guides, root README strategy links/status, glossary additions and this completed phase-3 acceptance record. Its staged snapshot check verifies the 19 phase-2 source/fixture/design fingerprints, seven recorded guide/root/glossary/learning-file identities and relative links/heading anchors. This addresses partial-staging and missing-file risk without repeating independent authoring, engine resource proofs or native runs. The staged tree identity and actual check result are recorded in the commit message. The final evidence-record edits describe local approval/checkpoint handling only; application source and the successfully checked native behavior remain unchanged.
 
 Only source/documentation is staged. Ignored `.scratch/issue-4-phase3/` evidence, disposable databases, `target/`, `dist/` and installed dependencies remain excluded. No temporary test bundle or Metten process remains. The Desktop copy remains untouched by this commit operation. Earlier no-commit and incomplete acceptance statements above retain their historical scope.
+
+
+## PR #27 review corrections — local only
+
+Connor's implementation handoff authorizes these three local corrections only. Starting HEAD was `6a0eafb1a9bd78eedafffd23651046fba4b53959`, exactly the reviewed head, with a clean working tree. No newer or unrelated work was overwritten. Read the current evidence index, agent verification instructions, product section 4, ADR 0001 and the approved rule design's validation, confirmation and state-lifetime contract. Read issue #4 and its comments through `gh` against `moultonlavah/metten`; prerequisite #2 is CLOSED. No GitHub mutation occurred.
+
+Scope reaches only shared `strategy.rs`, its existing public-interface integration tests and this record. Call sites inspected: checkpoint/option validation and recursive `predicate_bound`; the continuation's validation/application/reset paths; compiled condition evaluation, `predicate_eval`, `raw_value` and output/objective preservation. No exported type, JSON shape, caller signature, dependency, fixture, interface, configuration or saved-data migration changes. Correctly bound existing rules retain their meaning; previously accepted unbound counting references now intentionally fail validation.
+
+### Reproduction and correction
+
+Added three `review_` tests using the public parser and Evaluator begin/process_slice/snapshot interface, without the review's temporary files. Before engine edits, `cargo test -p metten-engine --locked --test strategy review_ -- --nocapture` failed all three:
+
+- Repeating market `one`'s opening boundary with reversed prices completed instead of rejecting: `early` changed from YES to NO, transaction 3, observations `{1: 2, 2: 2}`.
+- Counting input `signal` lost validity and recovered while the ask condition stayed true; transaction 5, the first new counting observation, incorrectly produced a candidate.
+- A Boolean checkpoint with constant comparisons and a selected-side `count_input` parsed successfully instead of returning `unbound_side`.
+
+The first test compilation exposed a test assertion that treated the parser's error vector as one error; corrected the assertion before the failing behavior run. During coverage expansion, the next-market fixture initially combined validity and observation changes for the same binding in one atomic transaction; the existing uniqueness check correctly rejected it. Split those changes into separate ordered transactions. Neither development failure is passing evidence.
+
+Corrections:
+
+1. Maintain fixed-size entered-market bit masks in the evaluator and pending validation. Catalog positions are stable because registration only appends unique descriptors, and both initial admission and registration cap markets at 128. Validation checks and marks the pending mask before staging or accepted-state mutation; application marks the retained mask only when consuming an accepted boundary. Reject repeated boundaries with existing `incompatible_market`, including duplicate members, separate transactions in one batch and later batches. Rejected batches cannot rewrite the first checkpoint, its establishing identity or accepted prices. Tests also preserve a previously confirmed 4-YES fill (6 YES remaining), reject later objective regression, and establish a fresh NO checkpoint on legitimate next-market entry.
+2. ConfirmedUpdates checks the counting input through existing `raw_value`, using the current market and evaluated side. Missing value or expired/invalid validity makes the confirmation unavailable and clears its sequence. Recovery alone contributes no observation; two new distinct observations are required. Tests retain duplicate suppression and show that losing the unrelated NO ask does not reset a YES confirmation. Existing dependency-failure and invalid-counting-observation tests also pass.
+3. Both ConfirmedUpdates and AfterCheckpointUpdate validate selected-side counting references against the enclosing side binding. The parser returns existing `unbound_side` without a selector. The regression accepts fixed NO, unique-side and remembered-checkpoint-side selectors for both operators.
+
+The original red run predates the expanded preservation/next-market assertions; all final assertions pass on the corrected source.
+
+### Processing and memory reassessment
+
+This section updates the affected rows of the earlier universal proofs; historical fingerprints do not identify this corrected source.
+
+- Boundary validation still visits at most 128 market descriptors. Replacing `any` with `position` does not add a traversal. A shift, bit test and bit update are fixed-width record operations covered by the existing 64-control allowance. Its 128 task reservation is unchanged. Application likewise retains one descriptor scan and existing incremental reset/disposal; only a scalar mask update is added.
+- ConfirmedUpdates adds one raw-value lookup with no allocation: at most 128 binding visits (conservatively 256 with scope projections), plus fixed helper/control operations. A full conservative branch bound is 128 interval visits +44 child truth lookup +256 counting-observation search +256 counting-value search +320 temporal mutation +44 continuity lookup +640 continuity/truth publication =1688 entry/library operations. This remains below the existing worst crossed-condition bound 3528 and reserved 3968 task allowance. Scalar/helper/control work remains below 64. Validation's two bounded input scans are outside process_slice, as before. No runtime recursion or new per-observation retention is introduced.
+- Each mask is one inline u128, with no heap allocation, cloning loop or disposal loop. The existing `size_of::<Self>()` and `size_of::<Pending>()` terms automatically charge the actual final layouts (including alignment). The 8-MiB admission reserve, history ownership, four-decision inventory and scratch inventory are unchanged. Counting lookup borrows its ID and returns a scalar, so the existing 770-byte auxiliary peak and `8*S` scratch argument remain applicable.
+- Reran all 21 engine unit tests with `--nocapture` to collect final-layout measurements as well as their assertions. Combined independent heap peak: 236556400 bytes with 230400064 history, leaving 6156336 non-history bytes below 8388608. Exact-boundary peak: 7091977. Latest-return/changed-output complete/Stop/failure peaks: 6664790 / 6553782 / 6373400. Scratch auxiliary bound: 770. Combined heap workload maximum observed work plus library bound: 2907; composed 128-numeric/1024-condition/128-market, depth-8 equal-time workload maximum: 1949; repeated-registration maximum: 381. All resource, Stop, extra-yield, rejection and terminal-cleanup assertions pass. Measurements corroborate the updated general argument; they do not replace it or establish production latency.
+
+### Final checks and source identity
+
+All Cargo commands used `/Users/connormoulton/.cargo/bin/cargo` in the requested working tree.
+
+| Final command | Result |
+| --- | --- |
+| `cargo test --workspace --locked` | 98 passed: native 10, engine unit 21, session 6, strategy 51, storage 10; two release-only hour tests ignored here. |
+| `cargo test -p metten-engine --locked --lib -- --nocapture` | 21 passed; fresh resource measurements above. |
+| `cargo test -p metten-engine --release --locked --test strategy -- --ignored --nocapture` | Both hour tests passed. Each reports 65988608 planned allocated bytes; average hour elapsed 7983 ms, exact-contract pre-open hour elapsed 7410 ms. |
+| `npm run check` | TypeScript and all 12 interface tests passed. |
+| `cargo clippy --workspace --all-targets --locked -- -D warnings` | Passed. |
+| `cargo fmt --all --check` | Passed. |
+| `git diff --check` | Passed. |
+
+Final source SHA-256:
+
+- `crates/engine/src/strategy.rs`: `e0ad929820b3bca672108927467c13e4e62a7f8bb5adb87e8a44088d877c26f1`
+- `crates/engine/tests/strategy.rs`: `b32a311f11464ac98040a0af722e1b4bb7cc0b2873838f4ccb32187a545402ac`
+
+All three findings are resolved locally. Prior packaged-app and credential evidence is retained only for the unchanged local import/storage/IPC/credential paths and their recorded versions. No freshly rebuilt package or new native/browser walkthrough is claimed for this engine correction. The controlled evaluator remains detached from desktop session execution; these changes do not affect those package requirements. Unchanged UI/build tooling and credential workflows were not repeated. No real credentials, account/provider access, paid service, trades, deployment, staging, commit, push, GitHub comment or merge occurred. Remote CI was not run. Local diff is restricted to the two Rust files and this evidence record; HEAD remains the starting SHA.

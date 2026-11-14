@@ -998,6 +998,13 @@ fn predicate_bound(
             if *n == 0 || *n > 10000 || !d.inputs.iter().any(|i| i.id == *count_input) {
                 return Err(rule_error(p, "reference"));
             }
+            if !bound
+                && d.inputs
+                    .iter()
+                    .any(|i| i.id == *count_input && i.side.as_deref() == Some("selected_side"))
+            {
+                return Err(rule_error(p, "unbound_side"));
+            }
             predicate_bound(
                 condition,
                 d,
@@ -1017,6 +1024,14 @@ fn predicate_bound(
                 && !d.inputs.iter().any(|i| i.id == *count_input)
             {
                 return Err(rule_error(p, "reference"));
+            }
+            if let Predicate::AfterCheckpointUpdate { count_input, .. } = c
+                && !bound
+                && d.inputs
+                    .iter()
+                    .any(|i| i.id == *count_input && i.side.as_deref() == Some("selected_side"))
+            {
+                return Err(rule_error(p, "unbound_side"));
             }
             start.max(
                 *cp.get(checkpoint)
@@ -2189,6 +2204,7 @@ struct Pending {
     discarding_output: bool,
     binding_lookup: usize,
     member_bindings: BTreeSet<u32>,
+    entered_markets: u128,
     catalog_context: RunContext,
     catalog_raw: Vec<RawState>,
     reserved_series: Vec<Series>,
@@ -2414,6 +2430,8 @@ pub struct Evaluator {
     frontier: u64,
     last_transaction: u64,
     market: Option<String>,
+    // Catalog indices are stable and admission limits the catalog to 128 markets.
+    entered_markets: u128,
     ready_at: Option<u64>,
     checkpoints: std::collections::BTreeMap<String, CheckpointSnapshot>,
     temporal: std::collections::BTreeMap<(String, usize), Temporal>,
@@ -2461,6 +2479,7 @@ impl Evaluator {
             frontier: 0,
             last_transaction: 0,
             market: None,
+            entered_markets: 0,
             ready_at: None,
             checkpoints: Default::default(),
             temporal: Default::default(),
@@ -2685,6 +2704,7 @@ impl Evaluator {
             discarding_output: false,
             binding_lookup: 0,
             member_bindings: BTreeSet::new(),
+            entered_markets: self.entered_markets,
             catalog_context: self.context.clone(),
             catalog_raw: self.raw.clone(),
             reserved_series: Vec::new(),
@@ -2901,18 +2921,22 @@ impl Evaluator {
                             }
                             budget -= 128;
                         }
-                        if let EvidenceChange::MarketBoundary { market_id } = c
-                            && !p
+                        if let EvidenceChange::MarketBoundary { market_id } = c {
+                            let index = p
                                 .catalog_context
                                 .markets
                                 .iter()
                                 .inspect(inspect_entry)
-                                .any(|m| {
+                                .position(|m| {
                                     m.market_id == *market_id
                                         && i128::from(m.open_ms) == i128::from(t.at_ms)
                                 })
-                        {
-                            return Err(evidence("incompatible_market"));
+                                .ok_or_else(|| evidence("incompatible_market"))?;
+                            let bit = 1u128 << index;
+                            if p.entered_markets & bit != 0 {
+                                return Err(evidence("incompatible_market"));
+                            }
+                            p.entered_markets |= bit;
                         }
                         p.validation_member += 1;
                         p.binding_lookup = 0;
@@ -3421,16 +3445,17 @@ impl Evaluator {
                 }
             }
             EvidenceChange::MarketBoundary { market_id } => {
-                let m = self
+                let index = self
                     .context
                     .markets
                     .iter()
                     .inspect(inspect_entry)
-                    .find(|m| m.market_id == *market_id)
+                    .position(|m| m.market_id == *market_id)
                     .ok_or_else(|| evidence("incompatible_market"))?;
-                if i128::from(m.open_ms) != i128::from(self.frontier) {
+                if i128::from(self.context.markets[index].open_ms) != i128::from(self.frontier) {
                     return Err(evidence("incompatible_market"));
                 }
+                self.entered_markets |= 1u128 << index;
                 if self.ready_at.is_some_and(|ready| ready < self.frontier) {
                     self.market = Some(market_id.clone());
                     self.checkpoints.clear();
@@ -3872,14 +3897,21 @@ impl Evaluator {
                             || matches!(r.descriptor.scope, BindingScope::Contract { side: s, .. } if s == side)))
                         .map(|r| r.number)
                 });
+                let counting_available = self
+                    .raw_value(count_input, self.market.as_deref(), side, false, batch)
+                    .is_some();
                 tree_work(self.temporal.len(), true);
                 let state = self.temporal.entry(key).or_default();
-                if inner != Truth::True {
+                if inner != Truth::True || !counting_available {
                     state.count = 0;
                     if let Some(n) = number {
                         state.last_number = n;
                     }
-                    return inner;
+                    return if counting_available {
+                        inner
+                    } else {
+                        Truth::Unavailable
+                    };
                 }
                 if let Some(n) = number
                     && n > state.last_number
