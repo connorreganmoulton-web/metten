@@ -2876,3 +2876,168 @@ fn review_counting_inputs_require_a_bound_side() {
         }
     }
 }
+
+#[test]
+fn review_crossings_reset_during_uncovered_quiet_cells() {
+    for (kind, baseline, crossing) in [("crossed_below", "50", "39"), ("crossed_above", "30", "61")]
+    {
+        let mut e = entered(current_rule(
+            json!({"type":kind,"left":{"reference":"ask"},"right":{"value":"40","unit":"contract_cents"}}),
+        ));
+        finish(
+            &mut e,
+            covered_prices(2, 3, baseline, "70"),
+            Some(objective()),
+        );
+        assert!(
+            finish(&mut e, batch(3, 0, vec![]), Some(objective()))
+                .candidate
+                .is_none()
+        );
+        let mut quiet = batch(4, 0, vec![]);
+        quiet.coverage = vec![CoverageFact {
+            binding_id: 1,
+            start_ms: 3,
+            end_ms: 4,
+        }];
+        finish(&mut e, quiet, Some(objective()));
+        let d = finish(
+            &mut e,
+            batch(4, 4, vec![observation_change(1, 4, crossing)]),
+            Some(objective()),
+        );
+        assert!(
+            d.candidate.is_none(),
+            "{kind} must not cross a quiet coverage gap"
+        );
+        finish(
+            &mut e,
+            batch(4, 5, vec![observation_change(1, 5, baseline)]),
+            Some(objective()),
+        );
+        assert!(
+            finish(
+                &mut e,
+                batch(4, 6, vec![observation_change(1, 6, crossing)]),
+                Some(objective())
+            )
+            .candidate
+            .is_some(),
+            "{kind} must recover on a fresh observed baseline"
+        );
+    }
+}
+
+#[test]
+fn review_historical_cells_retain_same_time_invalidity() {
+    for inner in ["change", "percentage_change"] {
+        for outer in [
+            "rolling_average",
+            "rolling_minimum",
+            "rolling_maximum",
+            "rolling_range",
+        ] {
+            let mut r = historical_rule(outer, "0");
+            r["measurements"] = json!([
+                {"id":"inner","operation":inner,"of":{"reference":"underlying"},"lookback_seconds":1},
+                {"id":"measured","operation":outer,"of":{"reference":"inner"},"lookback_seconds":1}
+            ]);
+            // Percentage change has percent units; zero retains the same exact value.
+            let unit = if inner == "percentage_change" {
+                "percent"
+            } else {
+                "usd_per_btc"
+            };
+            r["checkpoints"] = json!([{"id":"after_outage","during":{"start_seconds":1,"end_seconds":900},"when":{"type":"compare","left":{"reference":"measured"},"comparison":"equal_to","right":{"value":"0","unit":unit}}}]);
+            r["purchase_options"][0]["when"] =
+                json!({"type":"checkpoint_reached","checkpoint":"after_outage"});
+            let mut c = historical_context();
+            c.markets = vec![descriptor("one", 2002)];
+            let mut e =
+                Evaluator::new(ValidatedStrategy::parse(&r.to_string()).unwrap(), c).unwrap();
+            let mut initial = batch(2002, 0, vec![]);
+            initial.transactions = vec![
+                NormalizedTransaction {
+                    number: 1,
+                    at_ms: 0,
+                    changes: vec![lease(1), lease(2)],
+                },
+                NormalizedTransaction {
+                    number: 2,
+                    at_ms: 0,
+                    changes: vec![
+                        observation_change(1, 1, "100"),
+                        observation_change(2, 1, "25"),
+                    ],
+                },
+                NormalizedTransaction {
+                    number: 3,
+                    at_ms: 2002,
+                    changes: vec![EvidenceChange::MarketBoundary {
+                        market_id: "one".into(),
+                    }],
+                },
+            ];
+            initial.coverage = vec![CoverageFact {
+                binding_id: 1,
+                start_ms: 0,
+                end_ms: 2002,
+            }];
+            assert!(
+                finish(&mut e, initial, Some(objective()))
+                    .checkpoints
+                    .is_empty()
+            );
+            let mut outage = batch(
+                3001,
+                4,
+                vec![EvidenceChange::Validity {
+                    binding_id: 1,
+                    valid_until_ms: 0,
+                    reason: Some("controlled outage".into()),
+                }],
+            );
+            outage.coverage = vec![CoverageFact {
+                binding_id: 1,
+                start_ms: 2002,
+                end_ms: 3001,
+            }];
+            finish(&mut e, outage, Some(objective()));
+            finish(&mut e, batch(3001, 5, vec![lease(1)]), Some(objective()));
+            let mut next = batch(3002, 0, vec![]);
+            next.coverage = vec![CoverageFact {
+                binding_id: 1,
+                start_ms: 3001,
+                end_ms: 3002,
+            }];
+            let d = finish(&mut e, next, Some(objective()));
+            assert!(
+                d.checkpoints.is_empty() && d.candidate.is_none(),
+                "{outer} of {inner} must retain within-cell invalidity: {d:?}"
+            );
+            let mut recovering = batch(5001, 0, vec![]);
+            recovering.coverage = vec![CoverageFact {
+                binding_id: 1,
+                start_ms: 3002,
+                end_ms: 5001,
+            }];
+            assert!(
+                finish(&mut e, recovering, Some(objective()))
+                    .candidate
+                    .is_none()
+            );
+            let mut recovered = batch(5002, 0, vec![]);
+            recovered.coverage = vec![CoverageFact {
+                binding_id: 1,
+                start_ms: 5001,
+                end_ms: 5002,
+            }];
+            assert!(
+                finish(&mut e, recovered, Some(objective()))
+                    .candidate
+                    .is_some(),
+                "{outer} of {inner} must recover after complete fresh history"
+            );
+        }
+    }
+}

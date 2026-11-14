@@ -6,6 +6,8 @@
 
 ## Current evidence index
 
+- [Automated-review continuity and within-cell history corrections](#pr-27-automated-review-continuity-corrections)
+
 - [Local corrections for the three PR #27 review findings, final checks and resource reassessment](#pr-27-review-corrections--local-only)
 
 - [Completed native packaged walkthrough, immutable versions, session preservation and cleanup](#named-native-package-walkthrough--14-november-2026)
@@ -1449,3 +1451,34 @@ Final source SHA-256:
 - `crates/engine/tests/strategy.rs`: `b32a311f11464ac98040a0af722e1b4bb7cc0b2873838f4ccb32187a545402ac`
 
 All three findings are resolved locally. Prior packaged-app and credential evidence is retained only for the unchanged local import/storage/IPC/credential paths and their recorded versions. No freshly rebuilt package or new native/browser walkthrough is claimed for this engine correction. The controlled evaluator remains detached from desktop session execution; these changes do not affect those package requirements. Unchanged UI/build tooling and credential workflows were not repeated. No real credentials, account/provider access, paid service, trades, deployment, staging, commit, push, GitHub comment or merge occurred. Remote CI was not run. Local diff is restricted to the two Rust files and this evidence record; HEAD remains the starting SHA.
+
+
+## PR #27 automated-review continuity corrections
+
+Connor authorized merging and babysitting PR #27 after the local reviews. Before merging, GitHub review threads identified two additional failures on the reviewed code. Both were independently reproduced through public-interface tests, then corrected in shared strategy evaluation. The earlier ship recommendations did not cover these cases. This continuation changes only strategy.rs, its public tests and this record; it does not operate a trading application or access providers/accounts.
+
+### Failing-before and passing-after behavior
+
+- `cargo test -p metten-engine --locked --test strategy review_crossings_reset -- --nocapture` failed before the correction: an observed ask of 50, an uncovered quiet cell, a covered quiet cell and an ask of 39 incorrectly crossed below 40. The baseline-clear operation now runs before the no-observation return. The regression passes for both crossing directions and proves a new observed baseline permits subsequent genuine crossings.
+- `cargo test -p metten-engine --locked --test strategy review_historical_cells -- --nocapture` failed before the correction: at 3002 ms a rolling average of a warmed one-second change latched a checkpoint despite input validity being revoked and restored in separate transactions at 3001 ms. A numeric series now retains a per-cell invalidity flag, checks it before admitting the cell to downstream history, and resets it only after cell finalization. The test passes across change/percentage-change feeding average/minimum/maximum/range. It also proves no premature recovery at 5001 ms and successful recovery after complete fresh history at 5002 ms.
+- The first broad test run caught an overbroad initialization flag: the existing four-feed rounding fixture could not enter its next market because missing measurements before the first observations at Go were marked as an outage. Initial absence at Go now stays collection setup; loss after an available value, including at Go, and unavailable evaluations after time advances remain invalidity. The original fixture and the complete workspace suite subsequently passed. This failed intermediate run is not passing evidence.
+
+### Affected resource proof
+
+The crossing correction reorders an existing bounded scalar check; it adds no traversal, allocation or state. The numeric invalidity flag is inline and automatically charged through actual Series layouts. It adds constant work in compute_node and cell admission, within their existing control/task allowances. The final cell sweep now visits raw bindings plus numeric series; their admitted combined count is at most 128, so the existing 128-entry reservation still covers it. This supersedes the earlier table's description of that sweep as raw-only. No new history buffer, dependency traversal, scratch allocation or public API is introduced.
+
+Fresh 21-unit-test/resource run passed. Independent combined heap peak remained 236556400 bytes with 230400064 history bytes, leaving 6156336 non-history bytes below 8388608. Maximum observed combined work plus library bound remained 2907; the composed maximum was 1949. Existing allocation/extra-yield/Stop/rejection/terminal assertions passed. These results support the existing bounded record model, not a wall-clock or production-capacity guarantee.
+
+### Final local checks
+
+All Cargo invocations used /Users/connormoulton/.cargo/bin/cargo and locked dependencies.
+
+- `cargo test --workspace --locked`: 100 passed (native 10, engine unit 21, session 6, public strategy 53, storage 10); two hour tests ignored in debug.
+- `cargo test -p metten-engine --locked --lib -- --nocapture`: 21 passed, including independent resource measurements above.
+- `cargo test -p metten-engine --release --locked --test strategy -- --ignored --nocapture`: both hour tests passed; planned allocated bytes 65988608 each, exact-contract elapsed 7335 ms and underlying-average elapsed 7876 ms.
+- `npm run check`: TypeScript and all 12 interface tests passed.
+- Workspace all-target Clippy with `-D warnings`, formatting and diff whitespace checks passed.
+
+Final SHA-256: strategy.rs `c74010cbd3171f20bb56668096d4f9c5e43d749e3ce60340c7f81411c304114f`; tests/strategy.rs `e18c43cb9f1316731cb844b47fadfb0e3b72dda13236d5a06d8b8360171efa89`.
+
+The unchanged packaged import/storage/IPC/credential paths retain their recorded evidence only. No new native/browser/credential workflow, deployment or trading was performed. This is local evidence before the ensuing push; remote checks and the latest reviews must be assessed separately before merging. The commit message records the staged snapshot check.

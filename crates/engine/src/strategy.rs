@@ -1877,6 +1877,7 @@ struct Series {
     current: Option<i128>,
     previous: Option<i128>,
     cell_valid: bool,
+    bad_cell: bool,
     continuous: bool,
     history: Option<History>,
     unavailable_reason: &'static str,
@@ -3286,18 +3287,19 @@ impl Evaluator {
                 budget -= 1024;
                 let series = &self.series[n];
                 let c = &self.strategy.document.measurements[series.measurement].calculation;
-                let cell_valid = lookback(c) > 0
-                    || calculation_values(c).into_iter().all(|v| {
-                        self.value(
-                            v,
-                            series.market.as_deref(),
-                            series.side,
-                            true,
-                            true,
-                            &p.batch,
-                        )
-                        .is_some()
-                    });
+                let cell_valid = !series.bad_cell
+                    && (lookback(c) > 0
+                        || calculation_values(c).into_iter().all(|v| {
+                            self.value(
+                                v,
+                                series.market.as_deref(),
+                                series.side,
+                                true,
+                                true,
+                                &p.batch,
+                            )
+                            .is_some()
+                        }));
                 self.series[n].cell_valid = cell_valid;
                 let series = &self.series[n];
                 let c = &self.strategy.document.measurements[series.measurement].calculation;
@@ -3341,6 +3343,9 @@ impl Evaluator {
                     0
                 };
                 raw.bad_cell = false;
+            }
+            for series in self.series.iter_mut().inspect(inspect_entry) {
+                series.bad_cell = false;
             }
             self.frontier += 1;
             p.gaps_ready = false;
@@ -3651,7 +3656,11 @@ impl Evaluator {
         if result.is_some_and(|value| value.unsigned_abs() > LIMIT as u128) {
             reason = "numeric_range_exceeded";
         }
+        let was_available = self.series[n].current.is_some();
         self.series[n].current = result.filter(|x| x.unsigned_abs() <= LIMIT as u128);
+        // Initial missing values at Go are collection setup, not a lost valid cell.
+        self.series[n].bad_cell |=
+            self.series[n].current.is_none() && (self.frontier > 0 || was_available);
         self.series[n].unavailable_reason = reason;
         self.series[n].continuous = if lookback(&c) > 0 {
             self.series[n].current.is_some() && self.series[n].previous.is_some()
@@ -3828,6 +3837,9 @@ impl Evaluator {
                     state.baseline = None;
                     return Truth::Unavailable;
                 };
+                if !continuous && state.baseline_ms < self.frontier {
+                    state.baseline = None;
+                }
                 if !transaction.is_some_and(|t| {
                     self.raw.iter().inspect(inspect_entry).any(|r| {
                         r.observed_transaction == t.number
@@ -3838,9 +3850,6 @@ impl Evaluator {
                     })
                 }) {
                     return Truth::False;
-                }
-                if !continuous && state.baseline_ms < self.frontier {
-                    state.baseline = None;
                 }
                 let crossed = state.baseline.is_some_and(|(x, y)| {
                     if matches!(c, Predicate::CrossedBelow { .. }) {
@@ -4721,6 +4730,7 @@ impl AllocationCursor {
                 current: None,
                 previous: None,
                 cell_valid: false,
+                bad_cell: false,
                 continuous: false,
                 history,
                 unavailable_reason: "unavailable",
