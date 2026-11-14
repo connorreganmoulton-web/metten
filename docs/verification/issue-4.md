@@ -1,17 +1,24 @@
 # Issue #4 verification
 
-**Phase 2 local import/version checkpoint is implemented and locally tested; phase 3 remains open.** See [the current phase-2 evidence](#phase-2-local-importversion-checkpoint--13-november-2026).
+**Phase 3 is complete for the authorized local scope.** The [named native package walkthrough](#named-native-package-walkthrough--14-november-2026) closes the earlier exact-process targeting blocker. Issue #4’s local acceptance is satisfied by that walkthrough and the carried-forward phase-1/2 and documentation evidence. No GitHub issue mutation, remote CI or release/live qualification is claimed. Local commits are recorded at the end of this record.
 
 **Phase 1 is complete against the approved pure-rule contract.** Final integrated checks, source-derived processing and simultaneous-ownership proofs, independent measurements, acceptance challenge and preservation checks are recorded in the final sections below. Earlier incomplete checkpoints and failures remain historical evidence. That historical execution excluded phase 2; the separately authorized continuation is recorded below.
 
 ## Current evidence index
 
+- [Completed native packaged walkthrough, immutable versions, session preservation and cleanup](#named-native-package-walkthrough--14-november-2026)
+
+- [Owner-operated native continuation and remaining observations](#owner-operated-native-continuation--14-november-2026)
+
+- [Phase-3 documentation, independent authoring and packaged-proof boundary](#phase-3-documentation-and-local-proof--14-november-2026)
+
 - [Phase-2 local implementation, checks, exact fingerprints and remaining phase-3 boundary](#phase-2-local-importversion-checkpoint--13-november-2026)
+
 - [Final acceptance and exact checked source fingerprints](#final-integrated-acceptance--phase-1-complete)
 - [Processing convention](#primitive-convention), [standard-library derivation](#exact-compiler-b-tree-derivation) and [complete branch/helper table](#complete-branchhelper-table)
 - [Memory admission and retained ownership](#global-inequality-and-admission-points), [four-decision boundary](#four-decisions-including-the-returned-one) and [scratch derivation](#runtime-scratch-numerical-derivation-of-8s-and-4096)
 - [Twelve public behavior timelines](#public-behavior-closure-matrix) and [final acceptance challenge](#bounded-challenge-of-final-coordinated-proofs)
-- Remaining checkpoint: phase 3 (guides, independent authoring and focused packaged proof) in the [approved phase sequence](../proposals/issue-4-egm/strategy-rules-design.md#ordered-implementation-phases).
+- Completed local checkpoint: phase 3 (guides, independent authoring and focused packaged proof) in the [approved phase sequence](../proposals/issue-4-egm/strategy-rules-design.md#ordered-implementation-phases).
 
 The dated checkpoints and continuation prompts below are historical. Start with the final evidence above; consult earlier failures when investigating the behavior they describe.
 
@@ -1120,3 +1127,268 @@ After the phase-2 implementation report, Connor approved one local phase-2 commi
 The staged-snapshot helper verified tree `824533f3907640461da3a72b9945d2b4e15bdec2` in a disposable exported source directory, independently of unstaged files. It ran `npm ci --ignore-scripts`, `npm run check`, `npm run build`, `cargo test --workspace --locked`, `cargo fmt --all --check` and `cargo clippy --workspace --all-targets --locked -- -D warnings` in fail-fast order. All passed: 95 Rust tests and 12 Node tests, with the two unchanged simulated-hour checks carried forward as described above. Rust commands used `/Users/connormoulton/.cargo/bin/cargo`; an explicit target directory reused existing build artifacts without changing the staged source. The helper removed its exported directory afterward. This is local checkpoint verification, not remote CI or phase-3 packaged evidence.
 
 The final staging adds only this documentation of completed checks; all 19 fingerprinted phase-2 files remain byte-identical to the checked tree. Final snapshot whitespace and source-fingerprint checks cover that documentation-only change. The six separate retrospective files remain byte-identical and unstaged. The shared verification record's retrospective navigation index remains only in the working copy, excluded from this commit. Historical references above to uncommitted work and absent staging describe the implementation session before this separately authorized checkpoint.
+
+
+## Phase-3 documentation and local proof — 14 November 2026
+
+### Authority, scope and inherited evidence
+
+Connor replied “Authorize” to the explicit request for phase-3 documentation, an independent authoring exercise and unsigned local build/run checks on disposable storage. Lead: `/root`. Applied Ponytail full and EGM Phase 5 directly against the approved design; no new design/review cycle. Work remained in the selected worktree, branch `codex/issue-4-rule-contract`, HEAD `7b441c207bf111e2113d55710fb964daba425340`. No commit, staging, push, PR, merge or issue mutation was performed.
+
+Added only the four `docs/strategies/` entry/tutorial/reference/agent files; updated root README links, concise glossary terms and this verification record. Preserved the seven inherited uncommitted retrospective improvements, including this file's navigation index. No engine/native/interface/fixture/design changes. All 19 phase-2 fingerprints above were rechecked and matched. The existing staged-tree Rust tests/fmt/clippy and TypeScript/12 Node/build evidence therefore remains applicable. Phase-1 allocation/processing proofs and both release simulated-hour checks were carried forward; no reason to repeat them for documentation changes. The source tree identity is the existing committed checkpoint plus the listed documentation edits and inherited retrospective work, not a newly committed or CI-tested snapshot.
+
+Fresh read-only GitHub connector access confirmed `moultonlavah/metten` #4 OPEN, ready-for-agent, no comments, body blocker #2 CLOSED/completed. Older owner links remain historical. Issue #4's body, product specification, ADR 0001, glossary, implementation plan, tracker guidance, approved Detailed Implementation 1–8, current evidence index and final phase-2 checkpoints grounded the work. No issue was closed.
+
+### Documentation checks and observed differences
+
+The reference covers every current source binding, field and tagged variant, compatible units, decimal/time normalization, observation identity, quiet coverage/gaps, cumulative startup, remembered sides, priority, objective restrictions, support limits, errors, versions and compatibility. Both guides share the reference and unchanged `examples/learning.json`. Three complete inline reference documents teach one-hour Coinbase history with BRTI/Kraken comparison, five-minute-plus-one-minute composition, and the exact four-interval percentage regression. The guides explicitly separate rule support from source access/entitlement, connected execution, capacity and live qualification. Existing Start/Pause remains the separate non-trading session.
+
+Two implementation details are documented rather than embellished: the parser reserves two implicit ask slots within the 128 numeric-instance ceiling even when asks are explicit (at most 126 document instances); measurement units are inferred but preview does not expose a separate typed measurement-unit field. No new capability or source correction was introduced.
+
+Lead verification harness and captured results: `/tmp/metten-phase3-doccheck-xlxkiw4v/` (`Cargo.toml`, `src/main.rs`, `example-0.json` through `example-2.json`, `learning.json`, `results.json`, `links.json`, `preservation.json`). Command:
+
+```sh
+CARGO_TARGET_DIR=/Users/connormoulton/.t3/worktrees/metten/codex-issue-4-rule-cont-9b30c888aecdc9da/target /Users/connormoulton/.cargo/bin/cargo run --offline --manifest-path /tmp/metten-phase3-doccheck-xlxkiw4v/Cargo.toml -- /tmp/metten-phase3-doccheck-xlxkiw4v
+```
+
+Passed: all four exact documents parsed through `ValidatedStrategy` and previewed through `Engine::strategies`. Exact JSON retained; learning explanation asserted named intervals, strict/inclusive thresholds, same/opposite sides and priority; all explanations asserted the six-decimal/millisecond and unverified-source notices. Actual startup requirements asserted: learning ask 0 ms; one-hour underlying 3600000 ms; composition underlying 360000 ms; four-second percentage inputs 4000 ms. Relative-link check passed 53 links, including Markdown heading anchors in the new guides and changed root/glossary entry points. The inline documents only changed when authored, not to repair parser failures. No public test or source bug was exposed. Existing passing `phase1_four_feed_percentage_rounding_executes_through_history` and composed-history/nearest-even tests cover the unchanged calculation behavior; this session's check establishes that the new exact documents are accepted, not new provider or performance evidence.
+
+### Focused unsigned build and native blocker
+
+`PATH=/Users/connormoulton/.cargo/bin:$PATH npm run tauri build -- --no-bundle` passed. Its production TypeScript/Vite step passed and the release executable was built in 1m07s. Exact executable:
+`/Users/connormoulton/.t3/worktrees/metten/codex-issue-4-rule-cont-9b30c888aecdc9da/target/release/metten`, SHA-256 `265ef6b4a58e390e1b84e341f3c9eec8aa3925fcc16e3457daef70854ff589f1`.
+
+Native connector inventory was available before launch; no browser surface was available or used. Python launched only the newly built executable initially, PID 54470, with `METTEN_TEST_WORKSPACE=/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-phase3-package-11w21qi9/workspace` and no `METTEN_VERIFY_FD`. Launch metadata and SHA are in that parent directory's `launch.json`; `app.log` is empty. Process inspection confirmed the exact executable. Disposable SQLite corroborated one `Workspace opened — stopped` event, clock 0, zero strategy rows, integrity `ok`.
+
+**Observed selection failure and accidental launch:** `cua.getApp('com.metten.foundation')` resolved and opened the older Desktop bundle instead of selecting the unbundled test process. Its screen showed the old controlled-session interface with no Strategy versions area. Process inspection identified PID 54560 at `/Users/connormoulton/Desktop/metten/target/release/bundle/macos/Metten.app/Contents/MacOS/metten`. No session/credential/strategy controls were used there. The lead immediately requested Command-Q through the connector, which reported `App quit`; process inspection confirmed exit. This unintended launch appended ordinary open/close records to that app's existing default runtime storage. That runtime side effect is a preservation exception; it was not undone by editing records. No Desktop source/build/git operation was performed.
+
+Selecting the new executable by its exact path then returned `Invalid app: /Users/connormoulton/.t3/worktrees/metten/codex-issue-4-rule-cont-9b30c888aecdc9da/target/release/metten`. Native app inventory did not expose the still-running unbundled test process. The connector has no documented PID selector. This is an automation addressing blocker, not evidence that strategy behavior failed. No browser/DOM substitute, wrapper bundle or dummy-credential runner was used. Only the owned stopped test process received SIGTERM; exit was verified. It was not an app-managed quit and is not claimed as quit/reopen acceptance. Disposable `observations.json` preserves the SQLite/launch findings. No test process remains running.
+
+Source-path inspection confirms strategy actions call only validation/SQLite through native `strategies`, without the credential module or provider calls. Ordinary launch `Credentials::setup` returns unavailable before Keychain work without verification fd 3; credential invocation is wired only to credential buttons. The engine has only serde/serde_json/rusqlite dependencies. No provider or Keychain action was requested. This source evidence does not replace the still-missing packaged strategy interaction observation.
+
+**Still missing:** native choose-file → preview → save → quit/reopen → inspection → edit-copy; original-version preservation through the actual WebView; controlled-session history/labels and stopped-on-reopen alongside strategy actions; runtime packaged confirmation of no provider/Keychain interaction. Smallest next step is native automation capable of selecting the exact unbundled process by PID/path, or an owner-operated walkthrough of that exact executable/disposable workspace. No repeated launch or desktop Chrome fallback is justified.
+
+All 46 preserved Desktop source fingerprints matched and its complete porcelain status remained byte-identical to the baseline after cleanup. This proves source preservation, not absence of the runtime open/close side effect above. No signing, publication, accounts, credentials, source collection, paid service, real/paper trading or operation of another trading application occurred. These local checks are not remote CI, release acceptance, source access, production capacity, live API acceptance or fills. Exact context usage is unavailable; no percentage is asserted.
+
+### Independent documentation-led authoring
+
+First participant `/root/independent_author`, fresh context, authored from the guides and learning intent; its exercise passed in `/tmp/metten-phase3-author-A4yrBo/` with original id 1/edit id 2 and actual 360000-ms composition requirements. It needed API details absent from the first agent-guide draft. While consulting permitted exported declarations, its command inadvertently returned all `lib.rs`, including implementation and an unrelated test. This is not used as the final strict guide-only proof. The clarification is preserved in `completion-record.md`; no JSON repair was required. Lead corrected only the agent guide, adding complete disposable public-API plumbing and response fields. No strategy answer was supplied to the replacement participant.
+
+Replacement participant `/root/guide_only_author` used a fresh context with only the four guides, shared learning file and stated learning intent. It was explicitly forbidden source/tests/design/handoff/conversation access and reports none consulted. Its independently named JSON is recorded below. No further clarification or validation correction was needed. It explained every variable/unit/boundary/tie, remembered side, option order, startup, cumulative history, rounding, gap behavior and safeguard; full explanations are in `report.md`. It did not claim evaluator execution or packaged UI evidence.
+
+Actual command, exit 0:
+
+```sh
+CARGO_TARGET_DIR=/Users/connormoulton/.t3/worktrees/metten/codex-issue-4-rule-cont-9b30c888aecdc9da/target /Users/connormoulton/.cargo/bin/cargo run --offline --manifest-path /tmp/metten-phase3-guide-only-gr7jmfy_/Cargo.toml -- /tmp/metten-phase3-guide-only-gr7jmfy_
+```
+
+Evidence directory `/tmp/metten-phase3-guide-only-gr7jmfy_/`: `original.json`, `edited.json`, `composed-history.json`, `Cargo.toml`, `Cargo.lock`, `src/main.rs`, `exercise.sqlite`, `run.stdout`, `run.stderr`, `actual-results.md`, `report.md`. All are disposable local synthetic artifacts, not private runtime data. The offline harness build passed without warnings. Lead inspected the harness, observed output, generated explanation and exact single-field structural edit.
+
+Actual assertions: three parses succeed; both previews equal the generated parse explanations and write no version; exact reviewed originals/edits save as ids `1` and `2`; original id/JSON/explanation stay identical after the second save and after reopen; both versions list newest-first and retain exact JSON/explanations; reopened session is stopped. The composition's source `spot_trade` requires 360000 ms. Original requirements: `candidate_buyable_ask_cents: 0`, planned 8388608 bytes, no history bytes or implicit asks. Composition: 4800000 bytes inner average, 960016 change, 960000 outer average, shared 6720016, per-market 0, planned 15108624 bytes, implicit YES/NO asks. Generated meanings agree with the stated intent; no crossing/count was invented. Neither participant exercised provider feeds, actual eligibility/fills or the WebView.
+
+Exact original authored JSON (the copy changes only `/purchase_options/0/when/right/value` from `"30"` to `"29"`, preserving the fallback at 30):
+
+```json
+{"format":2,"name":"Guide-only: early bargain memory and reverse preference","inputs":[{"id":"candidate_buyable_ask_cents","source":"kalshi","instrument":"current_contract","field":"buyable_ask","unit":"contract_cents","side":"selected_side"}],"checkpoints":[{"id":"first_minute_unique_bargain","when":{"type":"compare","left":{"reference":"candidate_buyable_ask_cents"},"comparison":"less_than","right":{"value":"40","unit":"contract_cents"}},"remember_side":{"type":"unique_side"},"during":{"start_seconds":0,"end_seconds":60}}],"purchase_options":[{"id":"try_other_side_before_memory","when":{"type":"compare","left":{"reference":"candidate_buyable_ask_cents"},"comparison":"at_most","right":{"value":"30","unit":"contract_cents"}},"side":{"type":"checkpoint_side","checkpoint":"first_minute_unique_bargain","relation":"opposite"},"during":{"start_seconds":60,"end_seconds":120}},{"id":"try_remembered_side_second","when":{"type":"compare","left":{"reference":"candidate_buyable_ask_cents"},"comparison":"at_most","right":{"value":"30","unit":"contract_cents"}},"side":{"type":"checkpoint_side","checkpoint":"first_minute_unique_bargain","relation":"same"},"during":{"start_seconds":60,"end_seconds":120}}]}
+```
+
+Actual original generated explanation:
+
+```text
+Guide-only: early bargain memory and reverse preference — metten_rules_2. Calculations use six decimal places and one-millisecond time steps. Each named calculation rounds to nearest with ties to even. Source access is unverified.
+candidate_buyable_ask_cents: kalshi current_contract buyable_ask, ContractCents, side Some("selected_side"). Required post-Go history 0 milliseconds.
+Checkpoint first_minute_unique_bargain: during [0, 60) seconds, latch when candidate_buyable_ask_cents less than 40 ContractCents; remember exactly one qualifying side with the other false; both true is ambiguous and either unavailable prevents selection. A completed checkpoint survives gaps until market reset.
+Option try_other_side_before_memory: during [60, 120) seconds and when candidate_buyable_ask_cents at most 30 ContractCents, consider buying the opposite side of first_minute_unique_bargain.
+Option try_remembered_side_second: during [60, 120) seconds and when candidate_buyable_ask_cents at most 30 ContractCents, consider buying the same side of first_minute_unique_bargain.
+Intervals include start and exclude end; nested windows intersect. The first eligible leaf in depth-first array order wins. Missing evidence is unavailable only to dependent paths. Verified quiet coverage adds no observations, confirmations or crossings. Completed checkpoints survive gaps. Collect all required post-Go history, then wait for the next full market; collection becoming ready exactly at open waits for the following open. Market entry clears checkpoints and temporal/objective state while preserving that exact entering contract's history and compatible underlying history; another contract's history cannot substitute. Unknown/in-flight attempts block all purchases. Confirmed zero fill permits reselection; any fill locks the side and leaves only the original remaining quantity. Every candidate requires its current buyable ask, user price range and common safeguards. No trade is executed.
+Shared underlying history: 0 bytes; history replicated per concrete market: 0 bytes; fixed non-history reserve: 8388608 bytes.
+Support profile rules_2_initial: planned 8388608 bytes.
+```
+
+The edited generated explanation changes the opposite-side option to `at most 29 ContractCents`; the remembered-side alternative stays `at most 30 ContractCents`. No other rule field changes. Exact edited text and both original/edit detail observations remain in the evidence directory.
+
+Participant fixture identities (SHA-256):
+
+```json
+{
+  "original.json": "e461f0cc6bc7556109dd01867785bf3978e124b4e2b097b24c6d42257613a74e",
+  "edited.json": "c32131951b1c9f20c2383d00269bc85e00495154aa8bc424359d2ff0aa3114af",
+  "composed-history.json": "22c974a215f25b25c39f6e5325fbf55c0ea9700ed3e61df494d73ed6b22a649c",
+  "src/main.rs": "13c8d44dd4f2e44a8a40aa4d12ca8678791c6ea900c13237b652dd20e4556417",
+  "actual-results.md": "8ff83d7b0974bdf087857f5b54be84db39830b05e1eb41d4c99310fee09a04c2",
+  "report.md": "a950ee56fb535dd2ff6ee80a6088256bc710647c7156240935b13f6f23062a97"
+}
+```
+
+### Acceptance disposition
+
+| Requirement | Evidence / disposition |
+| --- | --- |
+| Strict bounded grammar, sources, units, conditions and side semantics | Proved in carried-forward phase-1/2 public tests and unchanged source fingerprints; exact new field reference checked against parser/types. |
+| Explanation from validated representation | Proved in carried-forward tests and current exact-document public parse/preview comparisons. No AI service or author explanation. |
+| Checkpoint/gap/reset/tie/boundary behavior | Proved by carried-forward controlled public timelines. New participant correctly explains them; its exercise does not add connected execution proof. |
+| Immutable edits, run settings outside JSON, matching reference and learning example | Proved through existing tests plus independent exact save/detail/reopen assertions. Four complete documents parse/preview; guides share the reference and learning file. |
+| Human/agent documentation discoverability and usable authored output | Proved: root links, 53 relative links, complete shared reference, independent corrected guide-only exercise without further clarification. |
+| One-hour and composed-history teaching / four-feed rounding | Proved: complete inline documents accepted, actual generated 3600000/360000/4000-ms requirements, unchanged existing controlled regression evidence for normalization/calculation. No new hour-resource run. |
+| Unsigned local build of actual committed strategy source | Proved: no-bundle build passed; binary identity recorded. |
+| Packaged choose/preview/save/reopen/inspect/edit-copy plus session labels/history | **Missing** due exact-executable native automation blocker. No mock/browser/engine substitution. |
+| No provider/Keychain access from strategy actions | Source boundary established; **packaged runtime observation missing**. No credentials or provider access performed. |
+| Remote CI, other Macs, release/live qualification/capacity/fills | Not established or claimed; outside this local phase. |
+
+Issue #4 remains open and phase 3 is not complete. No source fix, new commit or tracker mutation is recommended to resolve an automation addressing limitation. Complete the focused native interaction using a supported exact-process selector or owner-operated walkthrough, then update only that missing evidence.
+
+### Final documentation and shared fixture identities
+
+The verification record is excluded from its own fingerprint. These identities describe local working files, not a commit:
+
+```json
+{
+  "docs/strategies/README.md": "4d6e69ebb7862e3662f261eb2086391692b0233b8127c3f5c1cb113b5011c472",
+  "docs/strategies/authoring.md": "50554902721dc1b3a1e52141eedb007321875f15dfe7fa93dcceb758ec028d02",
+  "docs/strategies/reference.md": "54d67c1583ee091355ef9154d2af4ec0b5dba6e277e6a4b85b04d466bd5bbcf4",
+  "docs/strategies/agent-authoring.md": "afbf20545d8a6a240bba440e504bfdeb7ffc2ecdd0fbd524cae9da485ad3be32",
+  "README.md": "5666a0fa4aeaf8c5c03a019026fbd0f7a1bc810a5ac60ddf077f4e794bb65dfc",
+  "GLOSSARY.md": "a5dc2438c4c5f26738d91ec302359d9fc12a3381f8d787fab58ed5611715c573",
+  "examples/learning.json": "a79bd747078601cd16bc292c7896cdcb9f2fe3db0feebf412284a50a2bd50aa5"
+}
+```
+
+## Owner-operated native continuation — 14 November 2026
+
+### Exact targeting and reused build
+
+Accountable lead `/root` continued only the remaining phase-3 packaged proof, using Ponytail full and the approved EGM acceptance criteria directly (ordered phase 3 and Detailed Implementation item 8). No design review, independent authoring, resource proof or unchanged test suite was repeated. Read the current evidence index, the complete phase-3 record, the packaged controlled-session procedure in issue #2, the authoring import/save/edit steps and native workspace selection. Branch and HEAD remain `codex/issue-4-rule-contract`, `7b441c207bf111e2113d55710fb964daba425340`. Initial porcelain status matched the handoff's 13 modified/untracked files; no staging or commit.
+
+Fresh `cua.getState()` inventory succeeded for native apps. The current documented macOS selector remains `getApp(string)` accepting app name/path/bundle id; there is no PID selector, and window-id selection is documented for Linux/Windows only. Metten was absent from inventory. Because the previous exact executable path returned `Invalid app` and identifier lookup launched the wrong copy, neither lookup was repeated. No unsupported UI automation, wrapper bundle or browser substitute was attempted. This is an addressing limitation, not a demonstrated application defect. The prior Desktop launch/open-close runtime exception remains preserved above; this session did not select or launch that copy.
+
+Read-only fingerprint comparison against the 19-entry phase-2 manifest returned zero mismatches. The existing release binary still has SHA-256 `265ef6b4a58e390e1b84e341f3c9eec8aa3925fcc16e3457daef70854ff589f1`, modification time `2026-11-14T02:30:52.426010+00:00`; no files under `src`, `src-tauri`, `crates` or `dist` were newer. Reused the successful no-bundle build; no rebuild. `pgrep -fl '(^|/)metten( |$)'` found no running Metten before launch.
+
+### Owner-operated handoff unavailable
+
+Connor confirmed “Yes, I can operate it now” for the exact new executable on disposable storage. At `2026-11-14T02:44:56.555117+00:00`, Python `subprocess.Popen` launched only:
+
+```text
+/Users/connormoulton/.t3/worktrees/metten/codex-issue-4-rule-cont-9b30c888aecdc9da/target/release/metten
+```
+
+Launch environment explicitly set `METTEN_TEST_WORKSPACE=/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-phase3-owner-v_83eram/workspace`, removed `METTEN_VERIFY_FD`, and used `close_fds=True`, null stdin and local log output. PID `63981`. `ps -p 63981 -o pid=,comm=` and `lsof -a -p 63981 -d txt -Fn` confirmed the exact executable; `lsof -a -p 63981 -Fn` confirmed that process held this disposable `session.sqlite`, WAL/SHM and `session.lock`. Artifacts in the workspace's parent directory: `launch.json`, `app.log`, `schema.json`, `inherited-files.json` (hashes of all inherited changed/untracked files before this record update). Storage inspection used SQLite URI `mode=ro`.
+
+Owner was asked to observe initial stopped/non-trading labels and Strategy versions, then Start → Advance → Pause and report clock/status. Connor then clarified “Oh I’m not by my computer, you do it.” No owner screen observations were supplied, so the owner-operated fallback is unavailable in this session. The native selector limitation remains; this instruction does not make an unsupported exact-process selector available. No further UI selection or launch was attempted.
+
+At `2026-11-14T02:47:41.186875+00:00`, the lead rechecked PID 63981’s exact executable path with `ps` and sent SIGTERM only after an exact match. Normal app quit was unavailable through the supported native tool. Subsequent `ps` confirmed exit and `pgrep` found no Metten process. This forced stop is not app-managed quit acceptance. Read-only SQLite inspection found one `Workspace opened — stopped` event at clock 0, zero strategy versions and `integrity_check = ok`. No Start/Advance/Pause, import or credential action is established. Captures are `stop.json` and `observations.json` beside the launch artifacts. A launch and correct storage selection do not prove packaged workflow acceptance.
+
+### Acceptance at this checkpoint
+
+| Remaining native requirement | Disposition |
+| --- | --- |
+| Correct new executable and fresh disposable storage | Proved by process path, binary hash and open database files. |
+| Non-trading labels, initial stopped state, Start/Advance/Pause history | Missing; exact native automation blocked and owner away. |
+| Native learning-file chooser, preview meaning and confirmed saved identity | Missing. |
+| Normal quit/process exit, same-workspace reopen stopped with retained history/version | Missing. |
+| Inspect original, edit only first purchase threshold 30 → 29, preview/save copy, inspect both | Missing. |
+| Native immutable original JSON/explanation/identity, corroborated saved rows and integrity | Missing. Prior independent engine evidence is retained but does not close this row. |
+| Strategy/provider/Keychain separation | Existing source evidence retained: `strategies` dispatches to validation/storage; ordinary `Credentials::setup` returns unavailable before Keychain access when `METTEN_VERIFY_FD` is absent. No credential/provider action requested. Native observations missing; no system-call/network instrumentation claim. |
+
+Issue #4 and phase 3 remain incomplete. The smallest next step remains an owner-operated walkthrough when Connor is at the Mac, or a supported native tool that can select this exact executable/process. No source fix, new framework or repeated unchanged checks are justified. No test process remains running. Exact context usage is unavailable; no percentage is asserted. Only this evidence record was changed during this continuation; all inherited work is preserved.
+
+## Named native package walkthrough — 14 November 2026
+
+### Supported selection correction and exact build
+
+Connor asked whether renaming the test would permit access. The lead checked the installed Tauri CLI help and used its supported build-configuration override to create a proper, uniquely named application bundle. Earlier statements that an owner-operated walkthrough was the only available next step were too narrow: the unbundled executable could not be selected, but a normal bundle with a distinct name/identifier could. No hand-built wrapper or new verification framework was necessary. No repository configuration or application source was edited.
+
+Actual command in the selected worktree, exit 0:
+
+```sh
+PATH=/Users/connormoulton/.cargo/bin:$PATH npm run tauri -- build --bundles app --no-sign --config '{"productName":"Metten Phase 3 Test","identifier":"com.metten.phase3test"}'
+```
+
+The TypeScript/Vite production step passed; release compilation passed in 15.80 seconds; the CLI produced one 13.08-MiB bundle and explicitly reported skipping signing. No signing identity, notarization, publishing, credentials or account access. This replaces the earlier no-bundle binary for this check because the configuration identity changed. The 19 recorded source/fixture/design fingerprints were rechecked after the walkthrough and all matched; unchanged engine/frontend test, authoring and resource evidence remains applicable. Only product name/application identifier changed through the command-line merge; window label `main`, controlled-session title, capabilities and functional code remained unchanged.
+
+Exact bundle at execution:
+
+```text
+/Users/connormoulton/.t3/worktrees/metten/codex-issue-4-rule-cont-9b30c888aecdc9da/target/release/bundle/macos/Metten Phase 3 Test.app
+```
+
+Identifier `com.metten.phase3test`. Executable `Contents/MacOS/metten`, SHA-256 `27fd8fdb5dea381c17c7bbfd9a4574f967073ca7510f450644e54cf367b63a35`. The retained complete bundle-file SHA-256 manifest has file hash `5901cefe732157f7c595e29adb24bcf6318a124f42e0195b77396b26d897f32b`; every listed file matched again after the completed walkthrough, before cleanup.
+
+Python `subprocess.Popen` launched that exact executable, PID 72863, at `2026-11-14T02:56:01.748493+00:00`. It explicitly set `METTEN_TEST_WORKSPACE=/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-phase3-named-gu7hmd3o/workspace`, removed `METTEN_VERIFY_FD`, used `close_fds=True` and null stdin, and redirected stdout/stderr to the owned local log. Before UI interaction, `ps -p 72863 -o pid=,comm=` and `lsof -a -p 72863 -Fn` confirmed the exact bundle executable and its open disposable database. `cua.getApp` with the full unique bundle path successfully selected **Metten Phase 3 Test** and returned the current native accessibility tree. No shared identifier/name lookup, Desktop selection or browser was used.
+
+### Observed native walkthrough
+
+All interactions below used the supported native CUA app binding. Accessibility snapshots followed actions; native screenshots supplied the complete explanation/JSON where accessibility text was truncated. Screenshots are present in the tool conversation, not claimed as separately exported PNG artifacts.
+
+1. Initial native screen: **Controlled session**, **No trading, market data, accounts, or real money**, **Stopped · ready when you are**, clock 0. Strategy versions said **Local rule preview and immutable history only. These rules do not run the controlled session or trade.** Credential notice said unavailable without the native verification runner; readability remained unchecked.
+2. **Start session** displayed running at clock 0; **Advance test clock +1 second** displayed clock 1; **Pause now** displayed paused and disabled Advance. All four saved history records were visible.
+3. Clicked the file-upload control, opened the macOS Open dialog, used Go to Folder with the exact worktree `examples/learning.json` path, and clicked **Open**. The native interface showed `learning.json`, its JSON and **Text changed. Preview before saving**, with saving disabled.
+4. Clicked **Preview current text**. The native preview enabled saving and displayed the unverified-source/no-trading notice, `metten_rules_2`, `rules_2_initial`, 8388608 planned bytes and zero ask-history requirement. A scrolled native screenshot showed the full learning meaning: current-contract buyable ask; strict below 40 during `[0,60)`; exactly one qualifying side remembered; ambiguity/unavailability handling; opposite side at most 30 first during `[60,120)`, then remembered side at most 30; inclusive start/exclusive end, option order and common safeguards. No crossing or sample-count condition was invented. Read-only SQLite at this point contained zero strategy versions: preview wrote none.
+5. **Save reviewed version** displayed **Saved immutable version 1 · 2026-11-14T02:57:38.517Z**. SQLite corroborated exact learning-file bytes and the stored generated explanation. Original row captured before any reopen/edit.
+6. Command-Q returned **App quit**. `ps` verified PID 72863 absent; SQLite recorded **Workspace closed — stopped**, clock 1. Python reopened the same executable with the same disposable workspace, PID 74468. `ps` and `lsof` again confirmed executable/storage before selecting the full bundle path.
+7. Reopened native screen showed **Stopped · ready when you are**, clock 1, retained version 1 and every earlier Start/Advance/Pause/close record. **Inspect version 1** displayed supported status, `metten_rules_2`, stored explanation and original JSON.
+8. Clicked **Edit a copy**. The original content populated Strategy text and saving remained disabled. A native `selectText` attempt failed with **Could not find the requested text to select in the element**; it made no edit. The lead then used the supported native `setValue` on Strategy text with the same complete JSON, changing only the first purchase-option threshold from `"30"` to `"29"`. The resulting native tree showed that field at 29 and the fallback at 30. SQLite later proved exact text equality to the original with only that first replacement, including whitespace and final newline.
+9. Previewed the copy. The native screenshot showed **opposite_side_first ... at most 29 ContractCents**, while **remembered_side_alternative ... at most 30 ContractCents** remained unchanged. Saved and observed **Saved immutable version 2 · 2026-11-14T02:59:44.516Z**.
+10. Inspected version 2; native screenshot showed its stored explanation at 29/30. Inspected version 1 again; native screenshots showed its stored explanation and JSON still at 30/30. Both version identities/timestamps remained listed. The controlled session remained stopped at clock 1.
+11. Final Command-Q returned **App quit**. `ps` verified PID 74468 absent; `pgrep -fl '(^|/)metten( |$)'` found no Metten process. No forced termination was used for either successful bundle-session quit.
+
+### Saved-data corroboration and identities
+
+Read-only SQLite URI `mode=ro` inspection asserted: exactly two saved versions; the complete original row (id, JSON, timestamp, format revision, meaning, explanation and name) equals its pre-edit capture; version 2 JSON equals original JSON with only the first `"value": "30"` changed to `"value": "29"`; version 2 explanation equals original explanation with only its first `at most 30 ContractCents` changed to `at most 29 ContractCents`. Both rows retain format revision 2 and meaning `metten_rules_2`. Integrity check returned `ok` after final exit. The first four session rows equal the pre-save capture byte for byte in every field.
+
+| Saved version | Timestamp UTC | Exact JSON SHA-256 | Stored explanation SHA-256 |
+| --- | --- | --- | --- |
+| 1 | 2026-11-14T02:57:38.517Z | `a79bd747078601cd16bc292c7896cdcb9f2fe3db0feebf412284a50a2bd50aa5` | `4a9174dea4f545dff3676a87e5009ab8ab5928bc9bc5ef9e4a1d89c3e64dddc3` |
+| 2 | 2026-11-14T02:59:44.516Z | `0aa9eba1da99f1bf11b18ca12a5da2728f8a8e1eb7d13f2f47ea0250edde094a` | `e02505a17b68f932ac0c33ea73b82687634559ec0a38d9c336311140a2118655` |
+
+Final session rows, in saved order:
+
+| Id | UTC | Status / clock | Reason |
+| --- | --- | --- | --- |
+| 1 | 02:56:03.079 | stopped / 0 | Workspace opened — stopped |
+| 2 | 02:56:21.406 | running / 0 | Controlled session started |
+| 3 | 02:56:26.098 | running / 1 | Test clock advanced one second |
+| 4 | 02:56:30.331 | paused / 1 | Controlled session paused |
+| 5 | 02:57:54.256 | stopped / 1 | Workspace closed — stopped |
+| 6 | 02:58:14.900 | stopped / 1 | Workspace opened — stopped |
+| 7 | 03:00:21.904 | stopped / 1 | Workspace closed — stopped |
+
+All dates in this table are 14 November 2026 UTC. Strategy preview, save, inspection and copying added no session-control events.
+
+### Provider/credential boundary and acceptance
+
+No credential controls were used and no credential prompt or provider/account workflow appeared during strategy actions. Native notices continued to state local-only strategy support and credential unavailability. Both exact launches omitted `METTEN_VERIFY_FD`; existing source-path evidence establishes that ordinary credential setup returns unavailable before Keychain operations, while strategy commands use only validation/SQLite. This closes the focused package check using actual native observations plus the unchanged source boundary. It is not a system-wide network/security-call trace or proof about unrelated macOS activity; no such instrumentation was run or claimed. No dummy-credential workflow, provider collection, account access, paid service or trading run occurred.
+
+| Remaining phase-3 acceptance item | Final disposition |
+| --- | --- |
+| Correct native app and disposable storage | Proved by unique bundle path/identifier, executable hash, process and open database identities. |
+| Non-trading labels and initial stopped state | Proved in native accessibility tree. |
+| Native learning-file choice, preview and confirmed save | Proved through Open dialog/native controls, full explanation screenshot, zero-row preview check and confirmed version 1. |
+| Normal quit and same-workspace stopped reopen | Proved by native Command-Q, process exit, saved close/open records and stopped native clock 1. |
+| Retained controlled-session history and saved version | Proved in reopened native interface and unchanged saved rows. |
+| Inspect/edit-copy/preview/save/inspect both versions | Proved in native interface; versions 1 and 2 confirmed separately, with screenshot-visible 30/30 and 29/30 meanings. |
+| Immutable original JSON, explanation and identity | Proved by native inspection plus complete pre/post row equality and exact one-field copy comparison. |
+| No strategy-triggered provider/Keychain workflow | Proved within the focused scope by observed local-only workflow, absent credential bootstrap and unchanged source boundary; instrumentation limits above. |
+| Final storage integrity and owned-process cleanup | Proved: integrity `ok`, final stopped close record, both normal exits verified and no remaining Metten process. |
+
+Together with the carried-forward completed phases and guide-only authoring evidence, the authorized local issue-4 acceptance criteria are now satisfied. Issue #4 remains open in GitHub because no mutation was authorized/performed. Remote CI, other Macs, distribution/upgrade signing, provider source access, live qualification, production capacity and actual fills remain outside this local acceptance. No source correction was needed.
+
+### Mise en place and preservation
+
+At Connor’s request, only this continuation’s owned artifacts were consolidated after process exit under ignored `.scratch/issue-4-phase3/`:
+
+- `native-named/`: `launch.json`, `reopen.json`, `app.log` (empty), `bundle-manifest.json`, `preview-before-save.json`, `original-before.json`, `first-quit.json`, `final-observations.json`, and the closed disposable `workspace/`. Full exact JSON/explanations and all session records are preserved in `final-observations.json` and SQLite.
+- `owner-attempt/`: the earlier unavailable-owner fallback’s launch/stop/observations/schema/inherited-file records, empty log and closed disposable workspace.
+
+These were moved respectively from `/var/folders/8b/3ct60xws49sc9pdgdx551vmc0000gn/T/metten-phase3-named-gu7hmd3o/` and `.../metten-phase3-owner-v_83eram/`; historical launch metadata intentionally retains the actual execution paths. No earlier sessions’ artifacts were deleted. The uniquely named generated **Metten Phase 3 Test.app** bundle was removed only after verifying exit and its unchanged complete file manifest. No temporary test app remains in this worktree’s bundle output; ordinary ignored `target/` and `dist/` remain build output. No new helper, wrapper, dependency, configuration file or test framework was added.
+
+The Desktop app and source were neither selected, launched, renamed nor deleted during this continuation. The earlier accidental Desktop open/close exception remains recorded above and was not undone. Every inherited modified/untracked file except this intentionally updated evidence record retained its captured hash. Git retains exactly the inherited set of 13 modified/untracked paths, with only this record changed by the lead; no staged changes, commit, push, PR, merge or tracker mutation. A clean-looking Git status was not manufactured by deleting or hiding unfinished work.
+
+## Owner-authorized phase-3 and retrospective local commits — 14 November 2026
+
+After the native proof and cleanup, Connor approved the recommendation to check and commit the full pending set in separate commits by purpose (“Ok do it”). This supersedes earlier no-staging/no-commit boundaries only for this local checkpoint. No push, PR, merge, tracker mutation or publication is authorized or performed.
+
+First commit `2aa3fd5` contains the seven inherited retrospective improvements, with only the historical navigation index staged from this shared record. Staged tree `9e422b4247f0ac8c1b89d7a1d256a2712cbfcdff` passed `python3 scripts/check-staged.py python3 tests/check-staged.test.py`: all five regression checks passed, including missing dependencies, whitespace/command failures, removal of disposable exports and preservation of the actual Git index. Staged whitespace passed. Workflow commands were checked against existing runners and the two existing ignored release tests; their unchanged passing engine evidence was reused. No remote CI result is claimed.
+
+Second commit scope: the four strategy guides, root README strategy links/status, glossary additions and this completed phase-3 acceptance record. Its staged snapshot check verifies the 19 phase-2 source/fixture/design fingerprints, seven recorded guide/root/glossary/learning-file identities and relative links/heading anchors. This addresses partial-staging and missing-file risk without repeating independent authoring, engine resource proofs or native runs. The staged tree identity and actual check result are recorded in the commit message. The final evidence-record edits describe local approval/checkpoint handling only; application source and the successfully checked native behavior remain unchanged.
+
+Only source/documentation is staged. Ignored `.scratch/issue-4-phase3/` evidence, disposable databases, `target/`, `dist/` and installed dependencies remain excluded. No temporary test bundle or Metten process remains. The Desktop copy remains untouched by this commit operation. Earlier no-commit and incomplete acceptance statements above retain their historical scope.

@@ -33,3 +33,18 @@ The recorded eligibility of a strategy version for live use after the required p
 
 **Trading day**:
 A midnight-to-midnight UTC day. A market's result belongs to the day of its close, even if settlement is confirmed later.
+
+**Input**:
+An explicitly named source, instrument, field, unit and applicable side. It is a language binding, not proof of source access.
+
+**Measurement**:
+A named supported calculation over inputs or other measurements. Historical composition needs cumulative source coverage.
+
+**Evidence and coverage**:
+Trusted current validity and complete historical intervals for an exact binding. Verified quiet coverage adds time without inventing observations; a snapshot cannot repair a historical gap.
+
+**Purchase option**:
+An ordered eligibility condition and side choice, or a group of alternatives. The first eligible leaf wins subject to the shared objective and safeguards.
+
+**Format meaning**:
+The fixed interpretation attached to a saved version: format 2 uses `metten_rules_2`. A newer application cannot silently reinterpret old saved rules.
