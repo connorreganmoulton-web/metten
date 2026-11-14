@@ -50,9 +50,17 @@ completed successfully, producing
 [checkout #34](https://github.com/moultonlavah/metten/pull/34). No downgrade was
 manufactured. On #33 head `48973897e0a8d77ec4c3d200f2d5a0767fee6f76`,
 [Foundation checks](https://github.com/moultonlavah/metten/actions/runs/43562983066)
-was observed running `mac-foundation`. This confirms proposal check triggering,
-not successful checks or approval of either dependency update. Neither proposal
-is merged by this task.
+completed successfully. On #34 head
+`095e54dddf9645c2d2e3420505dffaf2e8e312fc`,
+[Foundation checks](https://github.com/moultonlavah/metten/actions/runs/43562988812)
+also passed. Both include native tests, release full-hour acceptance and the
+packaged Mac build. This confirms proposal check triggering and successful
+checks, not upstream source-review clearance or approval of either upgrade.
+Neither proposal is merged by this task. Their affected-evidence notes
+([#33](https://github.com/moultonlavah/metten/pull/33#issuecomment-6872746824),
+[#34](https://github.com/moultonlavah/metten/pull/34#issuecomment-6872746985)) identify
+checkout/credential-cleanup or Node/cache behavior respectively and preserve
+the #28 upstream source-review requirement before merge.
 
 The new three-ecosystem weekly configuration is not on the default branch yet.
 Initial successful npm, Cargo and Actions version jobs under this configuration
@@ -68,7 +76,19 @@ Do not close #29 until the three initial jobs have been inspected and their
 actual success, no-update result, or failure recorded. No available update and
 an unobserved check must be reported separately.
 
-Review and exact-final-revision Foundation checks are pending. TypeScript
+Independent review of `113dae0`: Codex / GPT-6.1 Sol Standards review found no
+findings. OpenCode Free Trial / DeepSeek V4.1 Flash Free Spec review found no
+implementation defects or material scope creep; it identified pending activation
+acceptance, missing affected-evidence notes on the existing proposals and a
+missing YAML check result. The notes and result are recorded in this follow-up;
+configuration is unchanged. Post-merge acceptance remains pending.
+
+The focused Ruby YAML/assertion check passed: version 2, exactly three root
+ecosystems, weekly scheduling, minor/patch version-only groups, no ignore rules
+or alternate target branch. Whitespace validation passed. No new application
+logic or test framework was introduced.
+
+Exact-final-revision Foundation checks are pending. TypeScript
 checking and Rust clippy are wired; no separate JavaScript lint or Dependabot
 configuration lint gate is wired. Use the existing Ruby YAML parser for a
 focused configuration check without adding a dependency or test framework.
