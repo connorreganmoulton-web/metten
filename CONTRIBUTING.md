@@ -29,3 +29,29 @@ Describe what you changed, link the issue, and report checks and any limitations
 Use controlled inputs and dummy credentials for tests. Never commit secrets, private runtime records, or account data. An issue or contribution does not authorize access to real credentials or accounts, paid services, deployment, or real-money validation. Do not operate another trading application or import its code or strategy thresholds. See the [product specification](METTEN_DESIGN_DRAFT_2026-11-12.md) for the intended safety boundaries.
 
 Report vulnerabilities privately using the instructions in [SECURITY.md](SECURITY.md). Do not post secrets or exploitable vulnerability details in a public issue.
+
+## Maintain build-action pins
+
+External actions in `.github/workflows/checks.yml` use full commit SHAs, with
+upstream versions or branch names in comments. `.github/dependabot.yml` requests
+monthly update proposals for the repository’s GitHub Actions. This
+configuration takes effect on the default branch;
+no proposal from it has yet been observed. Proposals require source review and
+passing Foundation checks before merge; they are never automatic approval.
+
+Connor Moulton (@moultonlavah) owns a manual review on the first of each month
+for `dtolnay/rust-toolchain`'s `master`-derived pin, and checks that the other two
+pins have received proposals or manually reviews them if automation is silent.
+Dependabot branch-derived SHA updates are not relied on: its current updater
+returns without updating when no version tag is available. See the
+[issue #28 evidence](docs/verification/issue-28.md) for the source and limitation.
+
+For each update, resolve the version/ref in the upstream repository, review the
+old-to-new source diff and action entry points (including nested action refs),
+and record the upstream ref, full SHA and review findings in the update issue or
+PR. Change the SHA and readable comment together. Preserve Node 24, restricted
+`contents: read` permissions, and every existing check, including the release
+full-hour tests and packaged Mac build. Rust **1.100.0** stays fixed: a compiler
+upgrade needs a separate issue and reassessment of the engine's
+compiler-dependent resource proof. Run the complete Foundation checks workflow
+on the exact proposed revision before accepting any pin update.
