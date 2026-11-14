@@ -4,7 +4,8 @@
 
 Issue #30 remains open. The initial default scan's Mac credential coverage gap
 is recorded below. A dedicated workflow now proposes Rust analysis on macOS;
-its actual extraction evidence and independent review are still pending.
+its actual extraction evidence is still pending. Independent review found no
+workflow blocker; its documentation corrections are recorded below.
 Scanning remains nonblocking; the existing `mac-foundation` merge requirement
 remains in force. This record is not security or release acceptance.
 
@@ -24,6 +25,13 @@ claimed. Pushes to main, pull requests to main and a weekly schedule trigger
 analysis. No `pull_request_target` event, application launch or credential test
 is introduced. The scanner alone receives `security-events: write` to upload
 results; ordinary Foundation permissions remain `contents: read`.
+
+Runner limitation: `macos-15` uses Apple Silicon (arm64). CodeQL's
+[platform requirements](https://codeql.github.com/docs/codeql-overview/system-requirements/)
+label Apple Silicon support beta; build mode `none` runs natively. If actual
+extraction is inadequate on this runner, the bounded fallback is
+`macos-15-intel`, followed by renewed extraction and final-head CI verification.
+No successful architecture-specific coverage is claimed before execution.
 
 The checkout and Rust installer pins reuse #28's reviewed revisions. The Rust
 installer explicitly preserves **1.100.0**. CodeQL `init` and `analyze` use
@@ -50,7 +58,13 @@ language/runner matrix, event scope, least-privilege permissions, fail-fast
 behavior, immutable action references, Rust 1.100.0 and build mode `none`.
 Foundation workflow, compiler and application lockfiles match current main
 byte-for-byte; whitespace check passed. No repository actionlint gate is wired.
-Independent review and hosted execution remain outstanding.
+Independent Standards/security review (Codex / GPT-6.1 Sol) found no workflow
+blocker and requested that the contributor guide describe coverage as pending;
+that wording is corrected. Independent Spec review (OpenCode Free Trial /
+DeepSeek V4.1 Flash Free) agreed on scope and requested the architecture/beta
+limitation above. Both documentation findings are resolved; hosted execution
+remains outstanding. No action-update proposal has been observed; the documented
+manual fallback applies.
 
 Required next evidence: full final-head Foundation checks; successful per-language
 CodeQL jobs; Rust extraction with the native module's semantic analyzer available,
