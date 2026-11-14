@@ -42,7 +42,7 @@ Every row requires its prerequisites and records PASS, FAIL or BLOCKED plus a lo
 Run Python interactively in a persistent terminal so the same owner retains `process` across native UI actions. Use the native connector with the full bundle path only after launch and identity checks; it must bind the existing process, not launch another workspace. For a successful close, send the native close action alone: never combine it with `getAXState()` or another inspection. Call `finish()` in the owner terminal next; the connector can relaunch a closed app during inspection. Only inspect a failed Quit after the owner confirms the child is still alive. Repeat `launch()` only after `finish()` returns. The operator supplies native actions from the checklist; these snippets are not an unattended UI framework.
 
 ```python
-import hashlib, json, os, pathlib, plistlib, sqlite3, subprocess, tempfile
+import contextlib, hashlib, json, os, pathlib, plistlib, sqlite3, subprocess, tempfile
 root = pathlib.Path.cwd()
 bundle = root / 'target/release/bundle/macos/Metten Verification Test.app'
 info = plistlib.loads((bundle / 'Contents/Info.plist').read_bytes())
@@ -86,7 +86,7 @@ def finish():
 # Call only after the app has opened its database.
 def rows(table):
     assert table in ('session_events', 'strategy_versions')
-    with sqlite3.connect((workspace / 'session.sqlite').as_uri() + '?mode=ro', uri=True) as db:
+    with contextlib.closing(sqlite3.connect((workspace / 'session.sqlite').as_uri() + '?mode=ro', uri=True)) as db:
         return db.execute('SELECT * FROM ' + table + ' ORDER BY id').fetchall()
 
 launch()
@@ -176,3 +176,10 @@ After review resolution, the final candidate passed:
 Logs are local under `.scratch/issue31/` with names `runner-check.log`, `staged-check.log`, `frontend-check.log`, `cargo-test.log`, `clippy.log` and `full-hour.log`. The source changes were reviewed against starting revision above before final regression. The scan correction was resolved by the lead across all three actual bundle-storage locations and exercised by the complete packaged credential sequence.
 
 Process-only checks never substitute for K/L. Base revision remote Foundation checks passed, verified through GitHub. New-head remote CI is missing: this task commits locally and does not push or create a PR. Local checks are not represented as remote CI confirmation. Same-build dummy evidence cannot establish credential continuity across a signed update, release security, other Macs, power-loss durability or live fills.
+
+
+### Follow-up: close history-inspection connections
+
+The commit review reproduced five calls to the documented `rows()` helper leaving five database files open until Python garbage collection. A SQLite connection's context manager handles transactions but does not close the connection. The recipe now uses `contextlib.closing` so every history read closes its connection on return or error.
+
+A focused check extracted the actual `rows()` function from this document and ran it against owned temporary SQLite storage. Five reads returned the expected saved row and left no database files open according to `lsof`; querying an absent table also closed its connection. No application, Keychain or user workspace was opened. Earlier application/runner evidence remains unchanged; this check covers only the corrected inspection helper. Staged whitespace validation passed. No new remote CI is claimed.
