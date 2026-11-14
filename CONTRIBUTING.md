@@ -32,7 +32,7 @@ Report vulnerabilities privately using the instructions in [SECURITY.md](SECURIT
 
 ## Maintain build-action pins
 
-External actions in `.github/workflows/checks.yml` use full commit SHAs, with
+External actions in `.github/workflows/` use full commit SHAs, with
 upstream versions or branch names in comments. `.github/dependabot.yml` requests
 monthly update proposals for the repository’s GitHub Actions. This
 configuration takes effect on the default branch;
@@ -55,3 +55,20 @@ full-hour tests and packaged Mac build. Rust **1.100.0** stays fixed: a compiler
 upgrade needs a separate issue and reassessment of the engine's
 compiler-dependent resource proof. Run the complete Foundation checks workflow
 on the exact proposed revision before accepting any pin update.
+
+## Maintain security scanning
+
+`.github/workflows/codeql.yml` runs the standard CodeQL queries. Rust runs on
+macOS to address the Mac-only credential coverage gap; actual semantic coverage
+remains pending. JavaScript/TypeScript, Actions and Python run on Linux. Swift's standalone
+verification harness is not scanned. The scanner does not execute that harness
+or access credentials. See [issue #30 evidence](docs/verification/issue-30.md)
+for coverage limitations and the acceptance still needed before making scanning
+a merge requirement.
+
+The CodeQL `init` and `analyze` actions share one reviewed upstream release SHA.
+Update both together through the existing monthly Dependabot route, with the
+same manual fallback owner above. Review action entry points and release changes,
+then inspect each language's extraction diagnostics and run all Foundation checks
+on the final revision. A successful job or file count alone does not prove native
+coverage. Keep the pinned Rust compiler and ordinary workflow permissions intact.
