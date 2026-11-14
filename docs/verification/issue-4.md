@@ -4,6 +4,17 @@
 
 **Phase 1 is complete against the approved pure-rule contract.** Final integrated checks, source-derived processing and simultaneous-ownership proofs, independent measurements, acceptance challenge and preservation checks are recorded in the final sections below. Earlier incomplete checkpoints and failures remain historical evidence. That historical execution excluded phase 2; the separately authorized continuation is recorded below.
 
+## Current evidence index
+
+- [Phase-2 local implementation, checks, exact fingerprints and remaining phase-3 boundary](#phase-2-local-importversion-checkpoint--13-november-2026)
+- [Final acceptance and exact checked source fingerprints](#final-integrated-acceptance--phase-1-complete)
+- [Processing convention](#primitive-convention), [standard-library derivation](#exact-compiler-b-tree-derivation) and [complete branch/helper table](#complete-branchhelper-table)
+- [Memory admission and retained ownership](#global-inequality-and-admission-points), [four-decision boundary](#four-decisions-including-the-returned-one) and [scratch derivation](#runtime-scratch-numerical-derivation-of-8s-and-4096)
+- [Twelve public behavior timelines](#public-behavior-closure-matrix) and [final acceptance challenge](#bounded-challenge-of-final-coordinated-proofs)
+- Remaining checkpoint: phase 3 (guides, independent authoring and focused packaged proof) in the [approved phase sequence](../proposals/issue-4-egm/strategy-rules-design.md#ordered-implementation-phases).
+
+The dated checkpoints and continuation prompts below are historical. Start with the final evidence above; consult earlier failures when investigating the behavior they describe.
+
 Branch: `codex/issue-4-rule-contract`. Base/head: `3eddf67e747099f8fea612955964a3e164f023fb` (uncommitted work).
 
 Copied baseline: exact bytes from `/Users/connormoulton/Desktop/metten`, before implementation. Existing unfinished engine Cargo.toml (including serde_json), lib.rs, storage.rs, strategy.rs and strategy tests copied together for legacy compatibility. The existing learning fixture is unchanged. Issue-4 design/review artifacts copied unchanged. No UI/native, secrets, runtime data or build output copied. Baseline snapshot outside source: `/tmp/metten-issue-4-starting-baseline`.

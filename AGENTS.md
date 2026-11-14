@@ -14,6 +14,8 @@ Preserve the root README as the GitHub project page. Do not create `.github/READ
 
 ## Agent skills
 
+For evidence navigation, bounded source reads, coordinated delegation and mixed-work checkpoint commits, follow `docs/agents/verification.md`.
+
 ### Issue tracker
 
 Track work in this repository's GitHub Issues. See `docs/agents/issue-tracker.md`.

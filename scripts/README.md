@@ -1,4 +1,8 @@
-# Native verification tools
+# Verification tools
+
+## Staged checkpoint checks
+
+Use [check-staged.py](check-staged.py) to check a mixed-work checkpoint independently of unstaged files. Usage, failure handling and archival-format exceptions are in [the agent verification guide](../docs/agents/verification.md#verify-a-mixed-work-checkpoint). Its disposable-Git regressions run with `python3 tests/check-staged.test.py` and in CI. The helper runs only the supplied command; it does not start native or credential checks itself.
 
 ## Overview
 
