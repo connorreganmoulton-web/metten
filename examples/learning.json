@@ -1,0 +1,59 @@
+{
+  "format": 2,
+  "name": "Learning: remember a side, consider its opposite",
+  "inputs": [
+    {
+      "id": "selected_side_ask",
+      "source": "kalshi",
+      "instrument": "current_contract",
+      "field": "buyable_ask",
+      "unit": "contract_cents",
+      "side": "selected_side"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "early_side_checkpoint",
+      "during": { "start_seconds": 0, "end_seconds": 60 },
+      "remember_side": { "type": "unique_side" },
+      "when": {
+        "type": "compare",
+        "left": { "reference": "selected_side_ask" },
+        "comparison": "less_than",
+        "right": { "value": "40", "unit": "contract_cents" }
+      }
+    }
+  ],
+  "purchase_options": [
+    {
+      "id": "opposite_side_first",
+      "during": { "start_seconds": 60, "end_seconds": 120 },
+      "side": {
+        "type": "checkpoint_side",
+        "checkpoint": "early_side_checkpoint",
+        "relation": "opposite"
+      },
+      "when": {
+        "type": "compare",
+        "left": { "reference": "selected_side_ask" },
+        "comparison": "at_most",
+        "right": { "value": "30", "unit": "contract_cents" }
+      }
+    },
+    {
+      "id": "remembered_side_alternative",
+      "during": { "start_seconds": 60, "end_seconds": 120 },
+      "side": {
+        "type": "checkpoint_side",
+        "checkpoint": "early_side_checkpoint",
+        "relation": "same"
+      },
+      "when": {
+        "type": "compare",
+        "left": { "reference": "selected_side_ask" },
+        "comparison": "at_most",
+        "right": { "value": "30", "unit": "contract_cents" }
+      }
+    }
+  ]
+}

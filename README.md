@@ -8,9 +8,9 @@
 Metten is an open-source Mac app in development for running supported Kalshi strategies locally. It is designed around a shared engine that keeps strategy rules separate from purchasing, accounting, and recovery.
 
 > [!NOTE]
-> **Early development:** Metten currently runs a non-trading test session and saves its history. Paper trading, live trading, and a public release are not yet available.
+> **Early development:** Metten currently runs a non-trading test session and saves its history. Local JSON strategy preview and immutable versions are available. Paper trading, live trading, and a public release are not yet available.
 
-[Get started](#run-the-non-trading-foundation) · [Contributing](CONTRIBUTING.md) · [Product specification](METTEN_DESIGN_DRAFT_2026-11-12.md) · [Issues](https://github.com/moultonlavah/metten/issues)
+[Write a strategy](docs/strategies/authoring.md) · [Agent authoring](docs/strategies/agent-authoring.md) · [Get started](#run-the-non-trading-foundation) · [Contributing](CONTRIBUTING.md) · [Product specification](METTEN_DESIGN_DRAFT_2026-11-12.md) · [Issues](https://github.com/moultonlavah/metten/issues)
 
 ## What we're building
 

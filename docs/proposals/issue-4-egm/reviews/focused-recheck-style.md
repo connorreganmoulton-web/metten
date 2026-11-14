@@ -1,0 +1,11 @@
+Read-only Stage 9 Style re-audit completed. Target SHA-256 matches `741a728267de62ab7bc2856672071f49b3e0169bab00f5012b53e4363aac48d7`. Findings: one Major, two Nits; no Blocker.
+
+- **Major — line 713 — CALIBRATE.** “Market reset removes checkpoints/contract state” still implies erasing the entering contract’s prepared history. That conflicts with the explicit preservation rule at line 489 and the required preservation test at line 715. Replace it with: “Market reset clears market-local checkpoints/temporal/objective state, preserves the entering contract’s own admitted history and compatible underlying history, and never transfers another contract’s history.” This removes conflicting implementation/test instructions without changing the approved design.
+- **Nit — lines 327–329 — DROP duplicate wording.** Both opening paragraphs direct readers to the final handoff and repeat that implementation is unauthorized. Keep the resolution identifier/report link, then use the single concise authority paragraph accepted under CR-09.
+- **Nit — line 701 — editorial correction.** Change “a independent documentation-led authoring walkthrough” to “an independent documentation-led authoring walkthrough.”
+
+The other focused repairs are clear: the arithmetic fixture contains its operands, graph, normalization boundaries and expected results; the public-source claim matches the preserved captures; review chronology distinguishes the original reviewed snapshot from the resolution revision; the walkthrough retains executable preview/version checks; and paging separately bounds summary count and complete serialized response bytes.
+
+**Read attestation:** Read the bundled `agents/style.md` and `docs/codex.md`; the complete assigned target range 325–755 and relevant earlier definitions/status/source-claim passages; the complete annotated and consolidated reports; the complete original `reviews/stage-9-style.md`; and both preserved Kalshi source captures. No additional style standard was supplied. The first attempted project-local `docs/codex.md` read found no file; the bundled integration document was subsequently read successfully.
+
+No writes, application tests, builds, external research, private-context retrieval or delegation occurred. This establishes editorial findings only; implementation and runtime behavior remain unverified.

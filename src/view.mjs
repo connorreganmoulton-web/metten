@@ -9,3 +9,12 @@ export function presentation(snapshot) {
     pauseDisabled: failed || (!busy && !snapshot.running),
   };
 }
+
+export function strategyFailure(failure, saving = false) {
+  const code = failure && typeof failure === 'object' ? failure.code : '';
+  if (code === 'busy') return 'Strategy action already in progress. Wait and retry.';
+  if (code === 'not_reviewed') return 'Preview the current text before saving.';
+  if (code === 'quitting') return 'Quitting — wait for the stopped state to be saved.';
+  if (code === 'resource_limit') return 'Strategy content is too large to process or show completely. Stored history is preserved.';
+  return saving ? 'Save not confirmed — inspect saved versions before retrying.' : 'Local strategy action failed. Wait and retry.';
+}
