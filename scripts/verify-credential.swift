@@ -185,7 +185,19 @@ func awaitRetainedChildExit() -> Bool {
     return successful
 }
 // Process-only check: no app, Keychain, workspace or Accessibility calls.
+func browserStoragePaths(_ identifier: String) throws -> [String] {
+    let parts = identifier.split(separator: ".", omittingEmptySubsequences: false)
+    let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
+    try require(parts.count > 1 && parts.allSatisfy { !$0.isEmpty && $0.unicodeScalars.allSatisfy { allowed.contains($0) } }, "invalid bundle identifier for storage scan")
+    return ["Library/WebKit/", "Library/Caches/", "Library/HTTPStorages/"].map { $0 + identifier }
+}
 func recoverySelfTest() throws {
+    try require(try browserStoragePaths("com.metten.verificationtest") == ["Library/WebKit/com.metten.verificationtest", "Library/Caches/com.metten.verificationtest", "Library/HTTPStorages/com.metten.verificationtest"], "bundle-specific storage paths incorrect")
+    for invalid in ["", "..", "../outside", "com..metten", "com.metten/other"] {
+        do { _ = try browserStoragePaths(invalid); throw Failure(message:"invalid identifier accepted") }
+        catch let error as Failure { try require(error.message == "invalid bundle identifier for storage scan", "invalid identifier accepted") }
+    }
+
     var pair: [Int32] = [-1,-1]
     try require(socketpair(AF_UNIX,SOCK_STREAM,0,&pair) == 0,"self-test socketpair failed")
     socket = pair[0]
@@ -465,7 +477,9 @@ func run() throws {
     try launch(bundle,directory,target!,isolatedSetup:false)
     try fill(a); try press("Save"); try waitText("Unavailable —"); try clearCheck(); try quit()
     try scan(directory)
-    for relative in ["Library/WebKit/com.metten.foundation", "Library/Caches/com.metten.foundation", "Library/HTTPStorages/com.metten.foundation"] {
+    let info = try PropertyListSerialization.propertyList(from:Data(contentsOf:bundle.appendingPathComponent("Contents/Info.plist")),format:nil) as! [String:Any]
+    guard let identifier = info["CFBundleIdentifier"] as? String else { throw Failure(message:"bundle identifier unavailable") }
+    for relative in try browserStoragePaths(identifier) {
         let browserDirectory = fm.homeDirectoryForCurrentUser.appendingPathComponent(relative)
         if fm.fileExists(atPath:browserDirectory.path) { try scan(browserDirectory); print("PASS: marker scan of " + relative) }
         else { print("ABSENT: " + relative) }
